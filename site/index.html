@@ -452,8 +452,8 @@ function layout(extra={}){
   }, extra);
 }
 const CFG = {displayModeBar:false, responsive:true};
-function empty(id,msg){ Plotly.purge($(id)); $(id).innerHTML = `<div class="empty">${msg}</div>`; }
-function plot(id, traces, lay){ $(id).innerHTML=''; Plotly.react($(id), traces, layout(lay), CFG); }
+function empty(id,msg){ const e=$(id); try{ Plotly.purge(e); }catch(_){} e.innerHTML = `<div class="empty">${msg}</div>`; }
+function plot(id, traces, lay){ const e=$(id); if (e.querySelector('.empty')){ e.innerHTML=''; } Plotly.react(e, traces, layout(lay), CFG); }
 
 // ---------- performance
 function drawPerf(){

@@ -317,6 +317,23 @@ def build(offline=False):
                         break
                 else:
                     print(f"! {s_}: no Yahoo data for {tick[s_]} or alternates", file=sys.stderr)
+            # history that starts after the first trade: fill earlier days from alternate listings
+            for s_ in syms:
+                hist = daily_px.get(tick[s_])
+                first_trade = min(t["date"] for t in txns if t["symbol"] == s_)
+                if hist is None or not len(hist) or hist.index[0].date() <= first_trade + dt.timedelta(days=5):
+                    continue
+                for alt in [a for a in meta[s_].get("alt_tickers", []) + [meta[s_]["ticker"]] if a != tick[s_]]:
+                    try:
+                        d2, _, _ = fetch_yahoo([alt], first)
+                    except Exception:
+                        continue
+                    h2 = d2.get(alt)
+                    if h2 is not None and len(h2) and h2.index[0] < hist.index[0]:
+                        hist = hist.combine_first(h2[h2.index < hist.index[0]])
+                        print(f"  {s_}: filled history before {daily_px[tick[s_]].index[0].date()} from {alt}")
+                        daily_px[tick[s_]] = hist
+                        break
             for s_ in syms:
                 print(f"  {s_:10s} {tick[s_]:14s} days={len(daily_px.get(tick[s_], []))} "
                       f"ltp={quotes.get(tick[s_], {}).get('ltp')}")
