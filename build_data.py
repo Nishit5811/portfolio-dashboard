@@ -295,14 +295,42 @@ def build(offline=False):
     today = now.date()
 
     daily_px, intra_px, quotes, source = {}, {}, {}, "broker-snapshot"
+    snap = snapshot_quotes(os.path.join(HERE, "inputs", "holdings_snapshot.csv"), cfg)
     if not offline:
         try:
             daily_px, intra_px, quotes = fetch_yahoo(list(tick.values()) + [bench_tk], first)
             source = "yahoo"
+            # any symbol Yahoo returned nothing for: try its alternate tickers
+            for s_ in syms:
+                if len(daily_px.get(tick[s_], [])):
+                    continue
+                for alt in meta[s_].get("alt_tickers", []):
+                    try:
+                        d2, i2, q2 = fetch_yahoo([alt], first)
+                    except Exception as e:
+                        print(f"  {s_}: {alt} failed ({e!r})")
+                        continue
+                    if len(d2.get(alt, [])):
+                        print(f"  {s_}: {tick[s_]} had no data, using {alt}")
+                        tick[s_] = alt
+                        daily_px.update(d2); intra_px.update(i2); quotes.update(q2)
+                        break
+                else:
+                    print(f"! {s_}: no Yahoo data for {tick[s_]} or alternates", file=sys.stderr)
+            for s_ in syms:
+                print(f"  {s_:10s} {tick[s_]:14s} days={len(daily_px.get(tick[s_], []))} "
+                      f"ltp={quotes.get(tick[s_], {}).get('ltp')}")
         except Exception as e:  # network down, yfinance missing, Yahoo hiccup
             print(f"! Yahoo fetch failed ({e!r}); falling back to snapshot", file=sys.stderr)
     if source != "yahoo":
-        quotes = snapshot_quotes(os.path.join(HERE, "inputs", "holdings_snapshot.csv"), cfg)
+        quotes = snap
+    else:
+        # last resort for a stock Yahoo can't price: broker snapshot LTP (flagged in the page)
+        for s_ in syms:
+            primary = meta[s_]["ticker"]
+            if tick[s_] not in quotes and primary in snap:
+                print(f"! {s_}: using broker snapshot price {snap[primary]['ltp']}", file=sys.stderr)
+                quotes[tick[s_]] = dict(snap[primary], fallback=True)
 
     # ---- date axis
     if source == "yahoo" and len(daily_px.get(bench_tk, [])):
@@ -335,7 +363,8 @@ def build(offline=False):
             return quotes[tick[sym]]["ltp"]
         s = pxs[sym]
         if s is None:
-            return None
+            q = quotes.get(tick[sym])
+            return q["ltp"] if q and q.get("fallback") else None
         s = s[[i <= d for i in s.index]]
         return float(s.iloc[-1]) if len(s) else None
 
@@ -414,6 +443,7 @@ def build(offline=False):
             exchange=sorted({t["exchange"] for t in sym_tx if t["exchange"]}),
             qty=q, avg_price=round(c / q, 4) if q else None, invested=round(c, 2),
             ltp=ltp, prev_close=prev, quote_as_of=qt.get("as_of"),
+            price_fallback=bool(qt.get("fallback")),
             day_change=(ltp - prev) if ltp and prev else None,
             day_change_pct=((ltp / prev - 1) * 100) if ltp and prev else None,
             day_pnl=(q * (ltp - prev)) if ltp and prev else None,

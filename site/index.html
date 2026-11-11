@@ -575,7 +575,7 @@ function drawHoldings(id, sortState){
   t.innerHTML = '<thead><tr>'+HCOLS.map(([k,l,c])=>`<th class="${c||''}" data-k="${k}">${l}${k===key?(dir>0?' ▲':' ▼'):''}</th>`).join('')+'</tr></thead><tbody>'+
     H.map(h=>`<tr class="click" data-s="${esc(h.symbol)}">
       <td><span class="sw" style="background:${colorOf(h.symbol)}"></span><b>${esc(h.symbol)}</b><div class="small muted">${esc(h.name)}</div></td>
-      <td>${num(h.qty)}</td><td>${num(h.avg_price,2)}</td><td>${num(h.ltp,2)}</td>
+      <td>${num(h.qty)}</td><td>${num(h.avg_price,2)}</td><td>${num(h.ltp,2)}${h.price_fallback?' <span class="muted" title="Yahoo had no quote; broker snapshot price">*</span>':''}</td>
       <td class="${cls(h.day_change_pct)}">${pct(h.day_change_pct)}</td><td class="${cls(h.day_pnl)}">${sfmt(h.day_pnl)}</td>
       <td>${fmt(h.invested)}</td><td>${fmt(h.value)}</td>
       <td class="${cls(h.unrealised)}">${sfmt(h.unrealised)}</td><td class="${cls(h.unrealised_pct)}">${pct(h.unrealised_pct)}</td>

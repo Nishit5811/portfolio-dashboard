@@ -10,22 +10,39 @@
     "MTNL": {
       "name": "Mahanagar Telephone Nigam",
       "ticker": "MTNL.NS",
-      "sector": "Telecom"
+      "sector": "Telecom",
+      "alt_tickers": [
+        "MTNL.BO",
+        "500108.BO"
+      ]
     },
     "NELCO": {
       "name": "Nelco Ltd",
       "ticker": "NELCO.NS",
-      "sector": "Telecom Equipment"
+      "sector": "Telecom Equipment",
+      "alt_tickers": [
+        "NELCO.BO",
+        "504112.BO"
+      ]
     },
     "SUNSHIEL": {
       "name": "Sunshield Chemicals",
       "ticker": "530845.BO",
-      "sector": "Specialty Chemicals"
+      "sector": "Specialty Chemicals",
+      "alt_tickers": [
+        "SUNSHIEL.BO",
+        "SUNSHIELD.BO",
+        "SUNSHIEL.NS"
+      ]
     },
     "GRAUWEIL": {
       "name": "Grauer & Weil (India)",
       "ticker": "GRAUWEIL.NS",
-      "sector": "Specialty Chemicals"
+      "sector": "Specialty Chemicals",
+      "alt_tickers": [
+        "505710.BO",
+        "GRAUWEIL.BO"
+      ]
     }
   }
 }
