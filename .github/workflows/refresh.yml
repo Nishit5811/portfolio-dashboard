@@ -2,12 +2,13 @@ name: Refresh portfolio dashboard
 
 on:
   schedule:
-    # Hourly through the Indian trading day (09:15–15:30 IST = 03:45–10:00 UTC), Mon–Fri,
-    # plus an after-close run and one daily run on weekends. Times in UTC.
-    - cron: "17 3-10 * * 1-5"
+    # Every 15 minutes through the Indian trading day (08:30–16:15 IST = 03:00–10:45 UTC), Mon–Fri,
+    # plus one run a day at weekends. Times are UTC. GitHub may start scheduled runs a few minutes late.
+    - cron: "*/15 3-10 * * 1-5"
+    - cron: "7 13,16 * * 1-5"
     - cron: "33 6 * * 0,6"
   push:
-    paths: ["inputs/**", "config.json", "build_data.py", "site/index.html"]
+    paths: ["inputs/**", "config.json", "build_data.py", "site/**"]
   workflow_dispatch: {}
 
 permissions:

@@ -2,102 +2,193 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Portfolio Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Portfolio</title>
+<meta name="theme-color" content="#2a78d6">
+<meta name="description" content="Live equity portfolio dashboard">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Portfolio">
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 <style>
 :root{
   color-scheme: light;
-  --page:#f9f9f7; --surface:#fcfcfb; --card:#ffffff;
-  --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
-  --grid:#e1e0d9; --axis:#c3c2b7; --ring:rgba(11,11,11,.10);
+  --page:#f4f4f1; --card:#ffffff;
+  --ink:#0b0b0b; --ink2:#52514e; --muted:#76746e;
+  --grid:#e6e5df; --axis:#c3c2b7; --ring:rgba(11,11,11,.09);
   --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#008300; --s7:#6250d6; --s8:#e34948;
-  --good:#006300; --bad:#d03b3b; --wash:rgba(42,120,214,.08); --accent:#2a78d6;
+  --good:#00760f; --bad:#d03b3b; --wash:rgba(42,120,214,.08); --accent:#2a78d6;
+  --safe-b: env(safe-area-inset-bottom, 0px); --safe-t: env(safe-area-inset-top, 0px);
 }
 @media (prefers-color-scheme: dark){
   :root:where(:not([data-theme="light"])){
     color-scheme: dark;
-    --page:#0d0d0d; --surface:#1a1a19; --card:#1a1a19;
-    --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781;
-    --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10);
+    --page:#0d0d0d; --card:#1a1a19;
+    --ink:#f0efec; --ink2:#c3c2b7; --muted:#9a998f;
+    --grid:#2c2c2a; --axis:#45453f; --ring:rgba(255,255,255,.10);
     --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767;
-    --good:#0ca30c; --bad:#e66767; --wash:rgba(57,135,229,.14); --accent:#3987e5;
+    --good:#22b33a; --bad:#ef6b6b; --wash:rgba(57,135,229,.14); --accent:#3987e5;
   }
 }
 :root[data-theme="dark"]{
   color-scheme: dark;
-  --page:#0d0d0d; --surface:#1a1a19; --card:#1a1a19;
-  --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781;
-  --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10);
+  --page:#0d0d0d; --card:#1a1a19;
+  --ink:#f0efec; --ink2:#c3c2b7; --muted:#9a998f;
+  --grid:#2c2c2a; --axis:#45453f; --ring:rgba(255,255,255,.10);
   --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767;
-  --good:#0ca30c; --bad:#e66767; --wash:rgba(57,135,229,.14); --accent:#3987e5;
+  --good:#22b33a; --bad:#ef6b6b; --wash:rgba(57,135,229,.14); --accent:#3987e5;
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--page);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
-.wrap{max-width:1280px;margin:0 auto;padding:16px}
-header.top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}
-h1{font-size:20px;margin:0;font-weight:650}
-h2{font-size:15px;margin:0 0 10px;font-weight:600}
-.sub{color:var(--ink2);font-size:12.5px}
-.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--ring);border-radius:999px;padding:3px 10px;font-size:12px;color:var(--ink2);background:var(--card)}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
-.dot.open{background:#0ca30c}
-button,select,input{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--ring);border-radius:8px;padding:6px 10px}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--page);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-top:var(--safe-t)}
+.wrap{max-width:1240px;margin:0 auto;padding:14px 16px 24px}
+h1{font-size:19px;margin:0;font-weight:700}
+h2{font-size:16px;margin:0;font-weight:650}
+.sub{color:var(--ink2);font-size:13px}
+.muted{color:var(--muted)}
+.pos{color:var(--good)} .neg{color:var(--bad)}
+.hidden{display:none!important}
+button,select,input{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--ring);border-radius:10px;padding:8px 12px;min-height:40px}
 button{cursor:pointer}
 button:hover{background:var(--wash)}
-.seg{display:inline-flex;border:1px solid var(--ring);border-radius:8px;overflow:hidden;background:var(--card)}
-.seg button{border:0;border-radius:0;padding:6px 11px;border-right:1px solid var(--ring)}
+button.primary{background:var(--accent);color:#fff;border-color:transparent}
+button.icon{padding:8px 11px;min-width:42px}
+
+/* header */
+.top{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
+.actions-top{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.status{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 12px}
+.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--ring);border-radius:999px;padding:4px 10px;font-size:12.5px;color:var(--ink2);background:var(--card);white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.dot.open{background:#0ca30c;box-shadow:0 0 0 3px rgba(12,163,12,.18)}
+
+/* tabs */
+.tabs{display:flex;gap:4px;margin-bottom:12px}
+.tabs a{color:var(--ink2);text-decoration:none;padding:8px 14px;border-radius:10px;font-weight:500}
+.tabs a.on{background:var(--card);color:var(--ink);box-shadow:0 0 0 1px var(--ring)}
+.bnav{display:none}
+
+/* filters */
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.chips::-webkit-scrollbar{display:none}
+.chips button{border-radius:999px;padding:6px 14px;min-height:36px;white-space:nowrap;font-size:14px}
+.chips button.on{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.selects{display:flex;gap:8px}
+.selects select{min-width:0}
+.rangeLbl{font-size:13px;color:var(--ink2)}
+
+/* hero + kpis */
+.hero{background:var(--card);border:1px solid var(--ring);border-radius:16px;padding:16px 18px;margin-bottom:12px;display:flex;flex-wrap:wrap;gap:14px 40px;align-items:flex-end}
+.hero .k{font-size:13px;color:var(--ink2)}
+.hero .big{font-size:34px;font-weight:750;letter-spacing:-.5px;line-height:1.1}
+.hero .chg{font-size:16px;font-weight:600;margin-top:2px}
+.grid{display:grid;gap:12px}
+.kpis{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.card{background:var(--card);border:1px solid var(--ring);border-radius:16px;padding:16px}
+.kpi .k{color:var(--ink2);font-size:13px}
+.kpi .v{font-size:22px;font-weight:700;margin-top:3px;white-space:nowrap}
+.kpi .d{font-size:13px;margin-top:3px;color:var(--ink2)}
+.two{grid-template-columns:3fr 2fr}
+.cardhead{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center;margin-bottom:10px}
+.seg{display:inline-flex;border:1px solid var(--ring);border-radius:10px;overflow:hidden;background:var(--card)}
+.seg button{border:0;border-radius:0;padding:6px 12px;min-height:34px;border-right:1px solid var(--ring);font-size:13.5px}
 .seg button:last-child{border-right:0}
 .seg button.on{background:var(--accent);color:#fff}
-.filters{position:sticky;top:0;z-index:5;background:var(--page);display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 0 10px;border-bottom:1px solid var(--grid);margin-bottom:14px}
-.filters .lbl{color:var(--muted);font-size:12px;margin-left:4px}
-.grid{display:grid;gap:12px}
-.kpis{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
-.card{background:var(--card);border:1px solid var(--ring);border-radius:12px;padding:14px}
-.kpi .k{color:var(--ink2);font-size:12px}
-.kpi .v{font-size:22px;font-weight:650;margin-top:2px;white-space:nowrap}
-.kpi .d{font-size:12.5px;margin-top:2px;color:var(--ink2)}
-.pos{color:var(--good)} .neg{color:var(--bad)}
-.two{grid-template-columns:2fr 1fr}
-@media (max-width:900px){.two{grid-template-columns:1fr}}
-.chart{width:100%;height:340px}
+.chart{width:100%;height:360px}
 .chart.sm{height:300px}
-.cardhead{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center;margin-bottom:8px}
-.cardhead h2{margin:0}
-.tablewrap{overflow-x:auto}
-table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
-th,td{padding:8px 10px;border-bottom:1px solid var(--grid);text-align:right;white-space:nowrap}
-th{color:var(--ink2);font-weight:600;font-size:12px;cursor:pointer;user-select:none;position:sticky;top:0;background:var(--card)}
-th:first-child,td:first-child{text-align:left}
+.hscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.note2{font-size:13px;color:var(--ink2);margin-top:6px}
+.empty{display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);text-align:center;padding:20px;font-size:14px}
+
+/* bar lists (allocation / contribution) */
+.blist{display:flex;flex-direction:column;gap:12px}
+.brow{display:grid;grid-template-columns:minmax(84px,auto) 1fr auto;gap:10px;align-items:center;font-size:14px}
+.brow .name{font-weight:600;white-space:nowrap}
+.brow .val{font-variant-numeric:tabular-nums;font-weight:600;text-align:right;white-space:nowrap}
+.brow .sub2{display:block;font-weight:400;font-size:12px;color:var(--ink2)}
+.track{height:12px;background:var(--grid);border-radius:6px;position:relative;overflow:hidden}
+.track .fill{position:absolute;top:0;bottom:0;border-radius:6px}
+.track.div .mid{position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--axis)}
+.sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:7px;vertical-align:0}
+.donutwrap{display:grid;grid-template-columns:170px 1fr;gap:16px;align-items:center}
+.donut{height:170px}
+
+/* tables */
+.tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:14px}
+th,td{padding:10px;border-bottom:1px solid var(--grid);text-align:right;white-space:nowrap}
+th{color:var(--ink2);font-weight:600;font-size:12.5px;cursor:pointer;user-select:none;background:var(--card);position:sticky;top:0}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--card);z-index:1}
 td.l,th.l{text-align:left}
-tbody tr:hover{background:var(--wash)}
+tbody tr:hover td{background:var(--wash)}
 tr.click{cursor:pointer}
-.sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:8px;vertical-align:-1px}
-.tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:999px;border:1px solid var(--ring);color:var(--ink2)}
+.tag{display:inline-block;font-size:11.5px;padding:1px 8px;border-radius:999px;border:1px solid var(--ring);color:var(--ink2);font-weight:600}
 .tag.BUY{border-color:var(--s1);color:var(--s1)} .tag.SELL{border-color:var(--s2);color:var(--s2)} .tag.DIVIDEND{border-color:var(--s3);color:var(--s3)}
-.banner{border:1px solid var(--s4);background:color-mix(in srgb,var(--s4) 10%,transparent);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:13px}
-.muted{color:var(--muted)}
-.empty{display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);text-align:center;padding:20px}
+
+/* holding cards (mobile) */
+.hcards{display:flex;flex-direction:column;gap:10px}
+.hcard{border:1px solid var(--ring);border-radius:14px;padding:12px 14px;cursor:pointer;background:var(--card)}
+.hcard:active{background:var(--wash)}
+.hcard .r1,.hcard .r2,.hcard .r3{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.hcard .sym{font-weight:700;font-size:16px}
+.hcard .r2{font-size:13px;color:var(--ink2);margin-top:2px}
+.hcard .r3{margin-top:8px;padding-top:8px;border-top:1px dashed var(--grid);font-size:13.5px}
+.hcard .bigv{font-weight:700;font-size:16px;font-variant-numeric:tabular-nums}
+
+.banner{border:1px solid var(--s4);background:color-mix(in srgb,var(--s4) 10%,transparent);border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:13.5px}
 .back{margin-bottom:10px}
-.hidden{display:none!important}
-.small{font-size:12px}
-.tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
-.tabs a{color:var(--ink2);text-decoration:none;padding:6px 12px;border-radius:8px;border:1px solid transparent}
-.tabs a.on{border-color:var(--ring);background:var(--card);color:var(--ink);font-weight:600}
-button.primary{background:var(--accent);color:#fff;border-color:transparent}
-button.primary:hover{filter:brightness(1.08);background:var(--accent)}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-start;justify-content:center;z-index:50;padding:40px 12px;overflow:auto}
-.modal .box{background:var(--card);border:1px solid var(--ring);border-radius:14px;padding:18px;width:min(560px,100%);box-shadow:0 10px 40px rgba(0,0,0,.25)}
+footer{color:var(--muted);font-size:12px;margin:24px 0 8px}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-start;justify-content:center;z-index:50;padding:32px 12px;overflow:auto}
+.modal .box{background:var(--card);border:1px solid var(--ring);border-radius:16px;padding:18px;width:min(560px,100%);box-shadow:0 10px 40px rgba(0,0,0,.25)}
 .form{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;margin:12px 0}
-.form label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--ink2)}
+.form label{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--ink2)}
 .form label.full{grid-column:1/-1}
 .form input,.form select{width:100%}
-.note{font-size:12.5px;color:var(--ink2);background:var(--wash);border-radius:8px;padding:8px 10px}
+.note{font-size:13px;color:var(--ink2);background:var(--wash);border-radius:10px;padding:9px 11px}
 .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap;align-items:center}
-.actions a.btn{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;border-radius:8px;padding:6px 12px}
+.actions a.btn{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;border-radius:10px;padding:9px 14px}
 pre.code{background:var(--page);border:1px solid var(--ring);border-radius:8px;padding:8px;font-size:12px;white-space:pre-wrap;word-break:break-all}
-.err{color:var(--bad);font-size:12.5px}
-footer{color:var(--muted);font-size:12px;margin:24px 0 8px}
+.err{color:var(--bad);font-size:13px}
+
+/* ---------- phone layout ---------- */
+@media (max-width:700px){
+  body{font-size:15px}
+  .wrap{padding:10px 12px calc(84px + var(--safe-b))}
+  .two{grid-template-columns:1fr}
+  .tabs{display:none}
+  .bnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--card);border-top:1px solid var(--ring);padding:6px 6px calc(6px + var(--safe-b))}
+  .bnav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;color:var(--muted);font-size:11.5px;padding:4px 0;border-radius:10px}
+  .bnav a .i{display:block}
+  .bnav a.on{color:var(--accent);font-weight:600}
+  .top h1{font-size:17px;line-height:1.25}
+  .actions-top{flex-wrap:nowrap;gap:5px}
+  .actions-top button{min-width:38px;min-height:38px;padding:6px 9px}
+  .selects{display:grid;grid-template-columns:1fr 1fr 1.2fr}
+  .selects select{width:100%}
+  .actions-top .txt{display:none}
+  .filters{flex-direction:column;align-items:stretch;gap:8px}
+  .selects select{flex:1;padding:6px 8px;font-size:14px}
+  .hero{padding:14px 16px;gap:10px 24px}
+  .hero .big{font-size:30px}
+  .kpis{grid-template-columns:1fr 1fr;gap:10px}
+  .kpi{padding:12px}
+  .kpi .v{font-size:18px}
+  .kpi .d{font-size:12px}
+  .card{padding:14px;border-radius:14px}
+  .chart{height:300px}
+  .chart.sm{height:260px}
+  .donutwrap{grid-template-columns:130px 1fr;gap:12px}
+  .donut{height:130px}
+  .form{grid-template-columns:1fr}
+  .hide-m{display:none}
+}
 </style>
 </head>
 <body>
@@ -107,16 +198,19 @@ footer{color:var(--muted);font-size:12px;margin:24px 0 8px}
       <h1 id="title">Portfolio</h1>
       <div class="sub" id="asof">Loading…</div>
     </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-      <span class="pill" id="mkt"><span class="dot"></span><span>Market</span></span>
-      <span class="pill" id="src">—</span>
-      <span class="pill" id="next">—</span>
-      <button id="addBtn" class="primary" title="Record a new buy, sell or dividend">＋ Add trade</button>
-      <button id="upBtn" title="Upload a new broker transaction-history export">⇪ Upload export</button>
-      <button id="reload" title="Reload latest data">↻ Refresh</button>
-      <button id="theme" title="Toggle theme">◐</button>
+    <div class="actions-top">
+      <button id="installBtn" class="hidden" title="Install as an app">⬇<span class="txt"> Install app</span></button>
+      <button id="addBtn" class="primary" title="Record a new buy, sell or dividend">＋<span class="txt"> Add trade</span></button>
+      <button id="upBtn" class="icon" title="Upload a broker export">⇪<span class="txt"> Upload</span></button>
+      <button id="reload" class="icon" title="Reload latest data">↻</button>
+      <button id="theme" class="icon" title="Light / dark">◐</button>
     </div>
   </header>
+  <div class="status">
+    <span class="pill" id="mkt"><span class="dot"></span><span>Market</span></span>
+    <span class="pill" id="ago">—</span>
+    <span class="pill" id="src">—</span>
+  </div>
 
   <div id="banner" class="banner hidden"></div>
 
@@ -128,63 +222,60 @@ footer{color:var(--muted);font-size:12px;margin:24px 0 8px}
   </nav>
 
   <div class="filters" id="filters">
-    <div class="seg" id="presets"></div>
-    <span class="lbl">Year</span>
-    <select id="fYear"></select>
-    <span class="lbl">Month</span>
-    <select id="fMonth" disabled></select>
-    <span class="lbl">Stock</span>
-    <select id="fStock"></select>
-    <span class="sub" id="rangeLbl"></span>
+    <div class="chips" id="presets"></div>
+    <div class="selects">
+      <select id="fYear" aria-label="Year"></select>
+      <select id="fMonth" aria-label="Month" disabled></select>
+      <select id="fStock" aria-label="Stock"></select>
+    </div>
+    <span class="rangeLbl" id="rangeLbl"></span>
   </div>
 
   <!-- OVERVIEW -->
   <section id="v-overview">
+    <div class="hero" id="hero"></div>
     <div class="grid kpis" id="kpis"></div>
+    <div class="card" style="margin-top:12px" id="perfCard">
+      <div class="cardhead">
+        <h2 id="perfTitle">Performance</h2>
+        <div class="seg" id="perfMode"><button data-m="value" class="on">Value</button><button data-m="pnl">P&amp;L</button><button data-m="ret">Return %</button></div>
+      </div>
+      <div id="perf" class="chart"></div>
+      <div class="note2" id="perfNote"></div>
+    </div>
     <div class="grid two" style="margin-top:12px">
-      <div class="card" id="perfCard">
-        <div class="cardhead">
-          <h2 id="perfTitle">Performance</h2>
-          <div class="seg" id="perfMode">
-            <button data-m="value" class="on">Value</button><button data-m="pnl">P&amp;L</button><button data-m="ret">Return %</button>
-          </div>
-        </div>
-        <div id="perf" class="chart"></div>
-        <div class="sub" id="perfNote"></div>
+      <div class="card">
+        <div class="cardhead"><h2>Total P&amp;L by stock</h2></div>
+        <div id="contrib" class="blist"></div>
       </div>
       <div class="card">
         <div class="cardhead"><h2>Allocation</h2>
           <div class="seg" id="allocMode"><button data-m="stock" class="on">Stock</button><button data-m="sector">Sector</button></div>
         </div>
-        <div id="alloc" class="chart"></div>
-      </div>
-    </div>
-    <div class="grid two" style="margin-top:12px">
-      <div class="card">
-        <div class="cardhead"><h2>Cash flow</h2>
-          <div class="seg" id="cfGran1"><button data-g="M" class="on">Monthly</button><button data-g="Y">Yearly</button></div>
-        </div>
-        <div id="cf1" class="chart sm"></div>
-      </div>
-      <div class="card">
-        <h2>Total P&amp;L by stock</h2>
-        <div id="contrib" class="chart sm"></div>
+        <div class="donutwrap"><div id="alloc" class="donut"></div><div id="allocList" class="blist"></div></div>
       </div>
     </div>
     <div class="card" style="margin-top:12px">
-      <div class="cardhead"><h2>Holdings</h2><span class="sub">Click a stock for its detailed view</span></div>
-      <div class="tablewrap"><table id="hold1"></table></div>
+      <div class="cardhead"><h2>Cash flow</h2>
+        <div class="seg" id="cfGran1"><button data-g="M" class="on">Monthly</button><button data-g="Y">Yearly</button></div>
+      </div>
+      <div class="hscroll" id="cf1wrap"><div id="cf1" class="chart sm"></div></div>
+      <div class="note2" id="cf1note"></div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="cardhead"><h2>Holdings</h2><span class="sub">Tap a stock for details</span></div>
+      <div id="hold1"></div>
     </div>
   </section>
 
   <!-- HOLDINGS -->
   <section id="v-holdings" class="hidden">
     <div class="card">
-      <div class="cardhead"><h2>Holdings</h2><span class="sub">Same-day trades offset first, rest FIFO (matches broker). Booked = realised + dividends.</span></div>
-      <div class="tablewrap"><table id="hold2"></table></div>
+      <div class="cardhead"><h2>Holdings</h2><span class="sub">Same-day trades offset first, rest FIFO (as your broker). Booked = realised + dividends.</span></div>
+      <div id="hold2"></div>
     </div>
     <div class="card" style="margin-top:12px">
-      <h2>Booked P&amp;L by year</h2>
+      <h2 style="margin-bottom:8px">Booked P&amp;L by year</h2>
       <div class="tablewrap"><table id="booked"></table></div>
     </div>
   </section>
@@ -196,15 +287,15 @@ footer{color:var(--muted);font-size:12px;margin:24px 0 8px}
       <div class="cardhead"><h2>Money in and out</h2>
         <div class="seg" id="cfGran2"><button data-g="M" class="on">Monthly</button><button data-g="Y">Yearly</button></div>
       </div>
-      <div id="cf2" class="chart"></div>
-      <div class="sub">Buys are shown below zero (cash leaving your account, incl. charges); sells and dividends above zero.</div>
+      <div class="hscroll" id="cf2wrap"><div id="cf2" class="chart"></div></div>
+      <div class="note2">Bought (incl. charges) shows below zero, sold and dividends above. Swipe sideways on a phone for more months.</div>
     </div>
     <div class="card" style="margin-top:12px">
-      <h2>Net invested over time</h2>
+      <h2 style="margin-bottom:8px">Net money invested over time</h2>
       <div id="netinv" class="chart sm"></div>
     </div>
     <div class="card" style="margin-top:12px">
-      <h2>Cash flow table</h2>
+      <h2 style="margin-bottom:8px">Cash flow table</h2>
       <div class="tablewrap"><table id="cfTable"></table></div>
     </div>
   </section>
@@ -214,112 +305,156 @@ footer{color:var(--muted);font-size:12px;margin:24px 0 8px}
     <div class="card">
       <div class="cardhead"><h2>Transactions</h2>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-          <input id="q" placeholder="Search…" size="14">
+          <input id="q" placeholder="Search…" size="12">
           <select id="fKind"><option value="">All types</option><option>BUY</option><option>SELL</option><option>DIVIDEND</option></select>
-          <label class="sub"><input type="checkbox" id="grp" checked> Group fills by day</label>
+          <label class="sub"><input type="checkbox" id="grp" checked style="min-height:0"> Group fills</label>
           <button id="csv">Copy CSV</button>
         </div>
       </div>
       <div class="sub" id="txCount" style="margin-bottom:6px"></div>
-      <div class="tablewrap" style="max-height:640px"><table id="tx"></table></div>
+      <div class="tablewrap" style="max-height:70vh"><table id="tx"></table></div>
     </div>
   </section>
 
   <!-- STOCK DETAIL -->
   <section id="v-stock" class="hidden">
-    <button class="back" onclick="location.hash='#holdings'">← All holdings</button>
-    <div class="cardhead"><div><h1 id="dName"></h1><div class="sub" id="dSub"></div></div></div>
+    <button class="back" onclick="history.length>1?history.back():(location.hash='#holdings')">← Back</button>
+    <div style="margin-bottom:10px"><h1 id="dName"></h1><div class="sub" id="dSub"></div></div>
+    <div class="hero" id="dHero"></div>
     <div class="grid kpis" id="dKpis"></div>
     <div class="card" style="margin-top:12px">
-      <div class="cardhead"><h2>Price, your average cost and trades</h2></div>
+      <div class="cardhead"><h2>Price vs your average cost</h2></div>
       <div id="dPrice" class="chart"></div>
+      <div class="note2">▲ buys and ▼ sells are marked; bigger markers mean bigger trades.</div>
     </div>
     <div class="grid two" style="margin-top:12px">
-      <div class="card"><h2>Position value vs invested</h2><div id="dPos" class="chart sm"></div></div>
-      <div class="card"><h2>Quantity held</h2><div id="dQty" class="chart sm"></div></div>
+      <div class="card"><h2 style="margin-bottom:8px">Position value vs invested</h2><div id="dPos" class="chart sm"></div></div>
+      <div class="card"><h2 style="margin-bottom:8px">Shares held</h2><div id="dQty" class="chart sm"></div></div>
     </div>
     <div class="card" style="margin-top:12px">
-      <h2>Trades &amp; dividends</h2>
-      <div class="tablewrap" style="max-height:520px"><table id="dTx"></table></div>
+      <h2 style="margin-bottom:8px">Trades &amp; dividends</h2>
+      <div class="tablewrap" style="max-height:60vh"><table id="dTx"></table></div>
     </div>
   </section>
 
-  <div class="modal hidden" id="mTrade" role="dialog" aria-modal="true" aria-labelledby="mtTitle">
-    <div class="box">
-      <h2 id="mtTitle">Add a trade</h2>
-      <div class="seg" id="mtSide"><button data-a="BUY" class="on">Buy</button><button data-a="SELL">Sell</button><button data-a="DIVIDEND">Dividend</button></div>
-      <div class="form">
-        <label class="full">Stock<select id="mtSym"></select></label>
-        <label class="newsym hidden">Symbol (e.g. TATAPOWER)<input id="mtNewSym" maxlength="20"></label>
-        <label class="newsym hidden">Yahoo ticker (e.g. TATAPOWER.NS or 530845.BO)<input id="mtTicker"></label>
-        <label class="newsym hidden">Company name<input id="mtName"></label>
-        <label class="newsym hidden">Sector<input id="mtSector"></label>
-        <label>Date<input type="date" id="mtDate"></label>
-        <label>Exchange<select id="mtExch"><option>NSE</option><option>BSE</option></select></label>
-        <label id="mtQtyL">Quantity<input type="number" id="mtQty" min="0" step="1"></label>
-        <label id="mtPxL">Price per share (₹)<input type="number" id="mtPx" min="0" step="0.01"></label>
-        <label id="mtChgL">Charges — STT, brokerage, fees (₹, optional)<input type="number" id="mtChg" min="0" step="0.01" value="0"></label>
-        <label>Notes (optional)<input id="mtNotes" maxlength="80"></label>
-      </div>
-      <div class="note" id="mtCalc"></div>
-      <div class="err" id="mtErr"></div>
-      <div id="mtOut"></div>
-      <div class="actions"><button id="mtCancel">Cancel</button><button class="primary" id="mtSave">Save trade</button></div>
-    </div>
-  </div>
-
-  <div class="modal hidden" id="mUp" role="dialog" aria-modal="true" aria-labelledby="muTitle">
-    <div class="box">
-      <h2 id="muTitle">Upload a broker export</h2>
-      <div class="sub">Download the stock's <b>Equity Transaction History</b> (.xlsx) from your broker, then add it here. Overlapping rows with earlier exports are counted once, and any trades you added by hand that the export now contains are dropped automatically.</div>
-      <div class="form">
-        <label class="full">Stock this export is for<select id="muSym"></select></label>
-        <label class="full newsym2 hidden">New symbol<input id="muNewSym" maxlength="20"></label>
-        <label class="full" id="muFileL">Export file (.xlsx)<input type="file" id="muFile" accept=".xlsx"></label>
-      </div>
-      <div class="err" id="muErr"></div>
-      <div id="muOut"></div>
-      <div class="actions"><button id="muCancel">Close</button><button class="primary" id="muSave">Upload</button></div>
-    </div>
-  </div>
-
   <footer id="foot"></footer>
+</div>
+
+<nav class="bnav" id="bnav">
+  <a href="#overview" data-v="overview"><svg class="i" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>Overview</a>
+  <a href="#holdings" data-v="holdings"><svg class="i" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="16" width="18" height="4" rx="1"/></svg>Holdings</a>
+  <a href="#cashflow" data-v="cashflow"><svg class="i" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16"/><path d="M3 8l4-4 4 4"/><path d="M17 20V4"/><path d="M13 16l4 4 4-4"/></svg>Cash flow</a>
+  <a href="#transactions" data-v="transactions"><svg class="i" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>Trades</a>
+</nav>
+
+<!-- add trade -->
+<div class="modal hidden" id="mTrade" role="dialog" aria-modal="true" aria-labelledby="mtTitle">
+  <div class="box">
+    <h2 id="mtTitle" style="margin-bottom:10px">Add a trade</h2>
+    <div class="seg" id="mtSide"><button data-a="BUY" class="on">Buy</button><button data-a="SELL">Sell</button><button data-a="DIVIDEND">Dividend</button></div>
+    <div class="form">
+      <label class="full">Stock<select id="mtSym"></select></label>
+      <label class="newsym hidden">Symbol (e.g. TATAPOWER)<input id="mtNewSym" maxlength="20"></label>
+      <label class="newsym hidden">Yahoo ticker (TATAPOWER.NS / CODE.BO)<input id="mtTicker"></label>
+      <label class="newsym hidden">Company name<input id="mtName"></label>
+      <label class="newsym hidden">Sector<input id="mtSector"></label>
+      <label>Date<input type="date" id="mtDate"></label>
+      <label>Exchange<select id="mtExch"><option>NSE</option><option>BSE</option></select></label>
+      <label id="mtQtyL">Quantity<input type="number" inputmode="decimal" id="mtQty" min="0" step="1"></label>
+      <label id="mtPxL">Price per share (₹)<input type="number" inputmode="decimal" id="mtPx" min="0" step="0.01"></label>
+      <label id="mtChgL">Charges — STT, brokerage, fees (₹)<input type="number" inputmode="decimal" id="mtChg" min="0" step="0.01" value="0"></label>
+      <label>Notes (optional)<input id="mtNotes" maxlength="80"></label>
+    </div>
+    <div class="note" id="mtCalc"></div>
+    <div class="err" id="mtErr"></div>
+    <div id="mtOut"></div>
+    <div class="actions"><button id="mtCancel">Cancel</button><button class="primary" id="mtSave">Save trade</button></div>
+  </div>
+</div>
+
+<!-- upload -->
+<div class="modal hidden" id="mUp" role="dialog" aria-modal="true" aria-labelledby="muTitle">
+  <div class="box">
+    <h2 id="muTitle" style="margin-bottom:6px">Upload a broker export</h2>
+    <div class="sub">Download the stock's <b>Equity Transaction History</b> (.xlsx) from your broker. Rows already in earlier exports are counted once, and trades you added by hand that the export now contains are dropped automatically.</div>
+    <div class="form">
+      <label class="full">Stock this export is for<select id="muSym"></select></label>
+      <label class="full newsym2 hidden">New symbol<input id="muNewSym" maxlength="20"></label>
+      <label class="full" id="muFileL">Export file (.xlsx)<input type="file" id="muFile" accept=".xlsx"></label>
+    </div>
+    <div class="err" id="muErr"></div>
+    <div id="muOut"></div>
+    <div class="actions"><button id="muCancel">Close</button><button class="primary" id="muSave">Upload</button></div>
+  </div>
+</div>
+
+<!-- install help (iOS) -->
+<div class="modal hidden" id="mInstall" role="dialog" aria-modal="true">
+  <div class="box">
+    <h2 style="margin-bottom:8px">Install on your phone</h2>
+    <div class="note"><b>iPhone (Safari):</b> tap the Share button <b>⬆︎</b> → <b>Add to Home Screen</b> → Add.<br><br>
+    <b>Android (Chrome):</b> tap <b>⋮</b> → <b>Install app</b> (or <b>Add to Home screen</b>).</div>
+    <div class="actions"><button id="miClose" class="primary">Got it</button></div>
+  </div>
 </div>
 
 <script>
 (function(){
 "use strict";
 const S = {data:null, view:'overview', stock:null, preset:'ALL', year:'', month:'', fstock:'',
-           perfMode:'value', allocMode:'stock', gran:'M', sort:{key:'value',dir:-1}, sort2:{key:'value',dir:-1}};
+           perfMode:'value', allocMode:'stock', gran:'M', sort:{key:'value',dir:-1}, sort2:{key:'value',dir:-1}, loadedAt:0};
 const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const REFRESH_MS = 10*60*1000;
+const POLL_MS = 2*60*1000;
 
 // ---------- utils
 const $ = id => document.getElementById(id);
 const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const mobile = () => window.innerWidth <= 700;
 const inr0 = new Intl.NumberFormat('en-IN',{maximumFractionDigits:0});
 const inr2 = new Intl.NumberFormat('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
-const fmt = (v,d=0) => v==null||isNaN(v) ? '—' : '₹'+(d?inr2:inr0).format(v);
+const fmt = (v,d=0) => v==null||isNaN(v) ? '—' : (v<0?'−':'')+'₹'+(d?inr2:inr0).format(Math.abs(v));
 const sfmt = (v,d=0) => v==null||isNaN(v) ? '—' : (v>0?'+':v<0?'−':'')+'₹'+(d?inr2:inr0).format(Math.abs(v));
 const pct = v => v==null||isNaN(v) ? '—' : (v>0?'+':v<0?'−':'')+Math.abs(v).toFixed(2)+'%';
 const num = (v,d=0) => v==null ? '—' : (d?inr2:inr0).format(v);
 const cls = v => v>0?'pos':v<0?'neg':'';
 const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const compact = v => { const a=Math.abs(v); return (v<0?'−':'')+'₹'+(a>=1e7?(a/1e7).toFixed(2)+' Cr':a>=1e5?(a/1e5).toFixed(2)+' L':a>=1e3?(a/1e3).toFixed(1)+'k':a.toFixed(0)); };
-function el(tag, attrs={}, html=''){ const e=document.createElement(tag); for(const k in attrs) e.setAttribute(k,attrs[k]); e.innerHTML=html; return e; }
-const colorOf = sym => { const i=S.data.holdings.findIndex(h=>h.symbol===sym); return css('--s'+((i%8)+1)); };
+// Indian short money: ₹7.13 L, ₹1.2 Cr, ₹45k
+function lakh(v, signed=false){
+  if (v==null||isNaN(v)) return '—';
+  const a=Math.abs(v), s = v<0?'−':(signed&&v>0?'+':'');
+  const t = a>=1e7 ? (a/1e7).toFixed(a>=1e8?1:2).replace(/\.0+$/,'')+' Cr'
+          : a>=1e5 ? (a/1e5).toFixed(a>=1e6?1:2).replace(/\.0+$/,'').replace(/(\.\d)0$/,'$1')+' L'
+          : a>=1e3 ? (a/1e3).toFixed(a>=1e4?0:1).replace(/\.0$/,'')+'k' : a.toFixed(0);
+  return s+'₹'+t;
+}
+const colorOf = sym => { const i=S.data.holdings.findIndex(h=>h.symbol===sym); return css('--s'+(((i<0?0:i)%8)+1)); };
+
+// axis ticks in lakhs
+function niceStep(range, n){ const raw=range/Math.max(n,1); const p=Math.pow(10,Math.floor(Math.log10(raw||1))); const m=raw/p; return (m<=1?1:m<=2?2:m<=2.5?2.5:m<=5?5:10)*p; }
+function moneyAxis(values, opts={}){
+  const v=values.flat().filter(x=>x!=null && isFinite(x));
+  if (!v.length) return {};
+  let lo=Math.min(...v), hi=Math.max(...v);
+  if (opts.zero){ lo=Math.min(lo,0); hi=Math.max(hi,0); }
+  if (lo===hi){ lo-=1; hi+=1; }
+  const step=niceStep(hi-lo, mobile()?4:5);
+  const vals=[]; for (let t=Math.floor(lo/step)*step; t<=hi+step*0.001; t+=step) vals.push(+t.toFixed(6));
+  return {tickvals:vals, ticktext:vals.map(t=> opts.pct ? (Math.round(t*10)/10)+'%' : lakh(t)), range: opts.pad===false?undefined:[lo-(hi-lo)*0.04, hi+(hi-lo)*0.06]};
+}
 
 // ---------- data load
 async function load(initial){
   let d = null;
   if (window.__EMBED__) d = window.__EMBED__;
   else {
-    try { const r = await fetch('data.json?t='+Date.now(), {cache:'no-store'}); d = await r.json(); }
-    catch(e){ if(initial){ $('asof').textContent='Could not load data.json — run build_data.py first.'; } return; }
+    try { const r = await fetch('data.json?t='+Date.now(), {cache:'no-store'}); if(!r.ok) throw 0; d = await r.json(); }
+    catch(e){ if(initial || !S.data){ $('asof').textContent='Could not load data — check your connection.'; } return; }
   }
-  S.data = d;
-  if (initial){ setupFilters(); setupEdit(); await detectEditMode(); }
-  render();
+  const changed = !S.data || S.data.generated_at !== d.generated_at;
+  S.data = d; S.loadedAt = Date.now();
+  if (initial){ setupFilters(); setupEdit(); await detectEditMode(); route(); }
+  else if (changed) render();
+  else header();
 }
 
 // ---------- period
@@ -347,14 +482,14 @@ function idxRange(){
 }
 function inRange(date){ const {a,b}=range(); return date>=a && date<=b; }
 
-// ---------- filters
+// ---------- filters & routing
 function setupFilters(){
   const P=['1D','1W','1M','3M','6M','YTD','1Y','ALL'];
   $('presets').innerHTML = P.map(p=>`<button data-p="${p}" class="${p==='ALL'?'on':''}">${p==='ALL'?'All':p}</button>`).join('');
   $('presets').onclick = e => { const p=e.target.dataset.p; if(!p) return; S.preset=p; S.year=''; S.month=''; $('fYear').value=''; $('fMonth').value=''; $('fMonth').disabled=true; render(); };
   const years=[...new Set(dates().map(d=>d.slice(0,4)))];
-  $('fYear').innerHTML = '<option value="">—</option>'+years.map(y=>`<option>${y}</option>`).join('');
-  $('fMonth').innerHTML = '<option value="">All months</option>'+MONTHS.map((m,i)=>`<option value="${i+1}">${m}</option>`).join('');
+  $('fYear').innerHTML = '<option value="">Year</option>'+years.map(y=>`<option>${y}</option>`).join('');
+  $('fMonth').innerHTML = '<option value="">Month</option>'+MONTHS.map((m,i)=>`<option value="${i+1}">${m}</option>`).join('');
   $('fYear').onchange = e => { S.year=e.target.value; S.month=''; $('fMonth').value=''; $('fMonth').disabled=!S.year; render(); };
   $('fMonth').onchange = e => { S.month=e.target.value; render(); };
   $('fStock').innerHTML = '<option value="">All stocks</option>'+S.data.holdings.map(h=>`<option value="${h.symbol}">${esc(h.symbol)}</option>`).join('');
@@ -364,54 +499,53 @@ function setupFilters(){
   for (const id of ['cfGran1','cfGran2']) $(id).onclick = e => { const g=e.target.dataset.g; if(!g) return; S.gran=g; segOn('cfGran1','g',g); segOn('cfGran2','g',g); render(); };
   for (const id of ['q','fKind','grp']) $(id).oninput = drawTx;
   $('csv').onclick = copyCsv;
-  $('reload').onclick = async () => { if (EDIT.mode==='local'){ $('reload').textContent='↻ Fetching…'; try{ await fetch('api/refresh',{method:'POST'}); }catch(e){} $('reload').textContent='↻ Refresh'; } load(false); };
+  $('reload').onclick = async () => { $('reload').textContent='…'; if (EDIT.mode==='local'){ try{ await fetch('api/refresh',{method:'POST'}); }catch(e){} } await load(false); render(); $('reload').textContent='↻'; };
   $('theme').onclick = () => { const r=document.documentElement; const dark = r.dataset.theme ? r.dataset.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches; r.dataset.theme = dark?'light':'dark'; try{localStorage.setItem('pd-theme',r.dataset.theme);}catch(e){} render(); };
-  try{ const t=localStorage.getItem('pd-theme'); if(t) document.documentElement.dataset.theme=t; }catch(e){}
   window.addEventListener('hashchange', route);
-  route();
+  let rt; window.addEventListener('resize', ()=>{ clearTimeout(rt); rt=setTimeout(render,200); });
 }
+try{ const t=localStorage.getItem('pd-theme'); if(t) document.documentElement.dataset.theme=t; }catch(e){}
 function segOn(id,attr,val){ [...$(id).children].forEach(b=>b.classList.toggle('on', b.dataset[attr]===val)); }
-
 function route(){
   const h = (location.hash||'#overview').slice(1);
   if (h.startsWith('stock-')){ S.view='stock'; S.stock=h.slice(6).toUpperCase(); }
   else S.view = ['overview','holdings','cashflow','transactions'].includes(h)?h:'overview';
-  [...$('tabs').children].forEach(a=>a.classList.toggle('on', a.dataset.v===S.view));
+  for (const nav of ['tabs','bnav']) [...$(nav).children].forEach(a=>a.classList.toggle('on', a.dataset.v===S.view || (S.view==='stock' && a.dataset.v==='holdings')));
   for (const v of ['overview','holdings','cashflow','transactions','stock']) $('v-'+v).classList.toggle('hidden', v!==S.view);
+  window.scrollTo(0,0);
   render();
 }
 
 // ---------- header
-function marketOpen(){
-  const now = new Date(); const ist = new Date(now.getTime() + (now.getTimezoneOffset()+330)*60000);
-  const d = ist.getDay(), m = ist.getHours()*60+ist.getMinutes();
-  return d>=1 && d<=5 && m>=555 && m<=930;
+function istNow(){ const n=new Date(); return new Date(n.getTime()+(n.getTimezoneOffset()+330)*60000); }
+function marketOpen(){ const t=istNow(), d=t.getDay(), m=t.getHours()*60+t.getMinutes(); return d>=1&&d<=5&&m>=555&&m<=930; }
+function agoText(iso){
+  const mins=Math.round((Date.now()-new Date(iso).getTime())/60000);
+  return mins<1?'just now':mins<60?mins+' min ago':mins<1440?Math.round(mins/60)+' h ago':Math.round(mins/1440)+' d ago';
 }
 function header(){
   const d=S.data;
   $('title').textContent = d.portfolio_name;
-  document.title = d.portfolio_name;
   const gen = new Date(d.generated_at);
-  $('asof').textContent = 'Data refreshed '+gen.toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'});
+  $('asof').textContent = 'Prices as of '+gen.toLocaleString('en-IN',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'});
   const open = marketOpen();
-  $('mkt').innerHTML = `<span class="dot ${open?'open':''}"></span><span>NSE/BSE ${open?'open':'closed'}</span>`;
-  $('src').textContent = d.price_source==='yahoo' ? 'Prices: Yahoo Finance (~15 min delay)' : 'Prices: broker snapshot';
-  $('next').textContent = window.__EMBED__ ? 'Static preview' : 'Auto-updates hourly';
+  $('mkt').innerHTML = `<span class="dot ${open?'open':''}"></span><span>Market ${open?'open':'closed'}</span>`;
+  $('ago').textContent = 'Updated '+agoText(d.generated_at);
+  $('src').textContent = d.price_source==='yahoo' ? (open?'Live · every 15 min':'Yahoo Finance') : 'Broker snapshot';
   const b=$('banner');
-  if (d.price_source!=='yahoo'){
-    b.classList.remove('hidden');
-    b.innerHTML = '<b>Preview mode.</b> Prices are from your broker export ('+esc(d.holdings[0]?.quote_as_of||'')+'). Historical prices, the NIFTY comparison and the intraday chart fill in once the hourly Yahoo Finance job runs (see README).';
-  } else b.classList.add('hidden');
-  $('rangeLbl').textContent = range().label;
-  $('foot').textContent = `Generated ${d.generated_at} · ${d.transactions.length} transactions · Benchmark ${d.benchmark.name} (same rupee flows invested in the index). Not investment advice.`;
+  if (d.price_source!=='yahoo'){ b.classList.remove('hidden'); b.innerHTML='<b>Preview.</b> Prices from your broker export; history and NIFTY comparison fill in once live Yahoo data loads.'; }
+  else b.classList.add('hidden');
+  $('rangeLbl').textContent = 'Showing: '+range().label;
+  $('foot').textContent = `${d.transactions.length} transactions · Prices from Yahoo Finance, about 15 min delayed · Benchmark: ${d.benchmark.name} with the same rupee flows · Not investment advice.`;
 }
+setInterval(()=>{ if(S.data) header(); }, 30000);
 
 // ---------- KPIs
 function kpi(k,v,dl='',c=''){ return `<div class="card kpi"><div class="k">${k}</div><div class="v ${c}">${v}</div><div class="d">${dl}</div></div>`; }
 function periodStats(){
   const s=S.data.series, [i0,i1]=idxRange();
   const base = i0>0 ? i0-1 : -1;
-  const tp = s.total_pnl, val=s.value, ni=s.net_invested;
+  const tp=s.total_pnl, val=s.value, ni=s.net_invested;
   const startP = base>=0 ? tp[base] : 0, endP = tp[i1];
   const startV = base>=0 ? val[base] : 0;
   const flow = ni[i1] - (base>=0?ni[base]:0);
@@ -423,37 +557,42 @@ function periodStats(){
   const real = tx.filter(t=>t.kind==='SELL').reduce((a,t)=>a+(t.realised||0),0);
   return {pnl, ret, flow, div, real};
 }
+function drawHero(){
+  const m=S.data.summary;
+  $('hero').innerHTML = `<div><div class="k">Current value</div><div class="big">${fmt(m.current_value)}</div>
+      <div class="chg ${cls(m.day_pnl)}">${sfmt(m.day_pnl)} (${pct(m.day_pnl_pct)}) today</div></div>
+    <div><div class="k">Invested</div><div style="font-size:20px;font-weight:650">${fmt(m.invested)}</div>
+      <div class="chg ${cls(m.unrealised)}" style="font-size:14px">${sfmt(m.unrealised)} (${pct(m.unrealised_pct)}) unrealised</div></div>`;
+}
 function drawKpis(){
-  const m=S.data.summary, p=periodStats(), r=range();
-  const isAll = r.label==='All time';
+  const m=S.data.summary, p=periodStats(), r=range(), isAll=r.label==='All time';
   $('kpis').innerHTML =
-    kpi('Current value', fmt(m.current_value), 'Invested '+fmt(m.invested)) +
-    kpi("Today's P&L", sfmt(m.day_pnl), pct(m.day_pnl_pct), cls(m.day_pnl)) +
-    kpi('Unrealised P&L', sfmt(m.unrealised), pct(m.unrealised_pct), cls(m.unrealised)) +
-    kpi('Total P&L', sfmt(m.total_pnl), 'Realised '+sfmt(m.realised)+' · Div '+fmt(m.dividends), cls(m.total_pnl)) +
-    kpi('XIRR', pct(m.xirr), 'Annualised, after charges', cls(m.xirr)) +
-    kpi(isAll?'Charges paid':'P&L · '+esc(r.label),
-        isAll? fmt(m.charges) : sfmt(p.pnl),
-        isAll? 'STT, brokerage & fees' : (p.ret!=null?pct(p.ret)+' · ':'')+'Booked '+sfmt(p.real+p.div),
-        isAll? '' : cls(p.pnl));
+    kpi('Total P&L', sfmt(m.total_pnl), 'incl. booked & dividends', cls(m.total_pnl)) +
+    kpi('XIRR', pct(m.xirr), 'annualised, after charges', cls(m.xirr)) +
+    kpi('Booked P&L', sfmt(m.realised+m.dividends), 'realised '+lakh(m.realised)+' · div '+lakh(m.dividends), cls(m.realised+m.dividends)) +
+    (isAll ? kpi('Charges paid', fmt(m.charges), 'STT, brokerage & fees')
+           : kpi('P&L · '+esc(r.label), sfmt(p.pnl), (p.ret!=null?pct(p.ret):'')+' · booked '+lakh(p.real+p.div), cls(p.pnl)));
 }
 
 // ---------- plotly theming
 function layout(extra={}){
-  const ink2=css('--ink2'), grid=css('--grid'), axis=css('--axis');
-  return Object.assign({
-    margin:{l:56,r:16,t:8,b:36}, paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)',
-    font:{family:'system-ui,-apple-system,Segoe UI,sans-serif', size:12, color:ink2},
-    xaxis:{gridcolor:grid, linecolor:axis, zeroline:false, showgrid:false},
-    yaxis:{gridcolor:grid, linecolor:axis, zerolinecolor:axis, tickprefix:'₹', separatethousands:true, automargin:true},
-    legend:{orientation:'h', y:1.12, x:0, font:{size:12}},
-    hovermode:'x unified', hoverlabel:{bgcolor:css('--card'), bordercolor:css('--axis'), font:{color:css('--ink')}},
-    separators:'.,', bargap:0.25
-  }, extra);
+  const ink2=css('--ink2'), grid=css('--grid'), axis=css('--axis'), m=mobile();
+  const base = {
+    margin:{l:m?50:62,r:m?10:16,t:10,b:m?56:52}, paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)',
+    font:{family:'system-ui,-apple-system,Segoe UI,Roboto,sans-serif', size:m?12.5:13, color:ink2},
+    xaxis:{gridcolor:grid, linecolor:axis, zeroline:false, showgrid:false, nticks:m?4:7, tickfont:{size:m?12:13}, automargin:true, fixedrange:m},
+    yaxis:{gridcolor:grid, linecolor:'rgba(0,0,0,0)', zerolinecolor:axis, zerolinewidth:1, automargin:true, tickfont:{size:m?12:13}, fixedrange:m},
+    legend:{orientation:'h', x:0, y:-0.16, yanchor:'top', font:{size:m?12.5:13}, itemclick:'toggle'},
+    hovermode:'x unified', hoverlabel:{bgcolor:css('--card'), bordercolor:axis, font:{color:css('--ink'), size:13}},
+    bargap:0.3, dragmode:m?false:'zoom'
+  };
+  for (const k of ['xaxis','yaxis','margin','legend']) if (extra[k]) { base[k]={...base[k],...extra[k]}; delete extra[k]; }
+  return Object.assign(base, extra);
 }
-const CFG = {displayModeBar:false, responsive:true};
+const CFG = {displayModeBar:false, responsive:true, scrollZoom:false};
 function empty(id,msg){ const e=$(id); try{ Plotly.purge(e); }catch(_){} e.innerHTML = `<div class="empty">${msg}</div>`; }
-function plot(id, traces, lay){ const e=$(id); if (e.querySelector('.empty')){ e.innerHTML=''; } Plotly.react(e, traces, layout(lay), CFG); }
+function plot(id, traces, lay){ const e=$(id); if (e.querySelector('.empty')) e.innerHTML=''; Plotly.react(e, traces, layout(lay), CFG); }
+const L2 = (c,w=2.5)=>({color:c,width:w});
 
 // ---------- performance
 function drawPerf(){
@@ -461,50 +600,77 @@ function drawPerf(){
   $('perfTitle').textContent = 'Performance · '+range().label;
   if (S.preset==='1D' && !S.year){
     const it=d.intraday||{};
-    if (!it.ts || !it.ts.length){ empty('perf','Intraday (hourly) chart appears once live Yahoo Finance prices are loaded.'); $('perfNote').textContent=''; return; }
-    const tr=[{x:it.ts, y:it.value, type:'scatter', mode:'lines', name:'Portfolio value', line:{color:css('--s1'),width:2}, hovertemplate:'₹%{y:,.0f}<extra></extra>'}];
-    plot('perf', tr, {xaxis:{type:'date', showgrid:false, linecolor:css('--axis'), rangebreaks:[{bounds:['sat','mon']},{bounds:[15.6,9.2],pattern:'hour'}]}, showlegend:false});
-    $('perfNote').textContent='Hourly bars over the last 5 sessions, current holdings.'; return;
+    if (!it.ts || !it.ts.length){ empty('perf','The hourly chart appears once live prices are loaded.'); $('perfNote').textContent=''; return; }
+    const lastDay = it.ts[it.ts.length-1].slice(0,10);
+    const idx = it.ts.map((t,i)=>t.slice(0,10)===lastDay?i:-1).filter(i=>i>=0);
+    const X = idx.map(i=>it.ts[i]), Y = idx.map(i=>it.value[i]);
+    plot('perf',[{x:X,y:Y,type:'scatter',mode:'lines+markers',name:'Portfolio value',line:L2(css('--s1')),marker:{size:7},hovertemplate:'%{x|%H:%M}  ₹%{y:,.0f}<extra></extra>'}],
+      {showlegend:false, xaxis:{type:'date',tickformat:'%H:%M'}, yaxis:moneyAxis([Y])});
+    $('perfNote').textContent = 'Hourly, latest session ('+new Date(lastDay).toLocaleDateString('en-IN',{day:'numeric',month:'short'})+').';
+    return;
   }
   const [i0,i1]=idxRange(); const X=s.dates.slice(i0,i1+1);
   const V=s.value.slice(i0,i1+1), C=s.cost.slice(i0,i1+1), B=s.benchmark.slice(i0,i1+1), N=s.net_invested.slice(i0,i1+1), P=s.total_pnl.slice(i0,i1+1);
-  const hasV = V.some(v=>v!=null && v>0) && V.filter(v=>v!=null).length>1;
+  const hasV = V.filter(v=>v!=null).length>1;
   let tr=[], lay={};
   if (S.perfMode==='value'){
-    tr.push({x:X,y:C,name:'Invested (cost)',type:'scatter',mode:'lines',line:{color:css('--muted'),width:2,dash:'dot',shape:'hv'},hovertemplate:'₹%{y:,.0f}'});
-    if (hasV) tr.push({x:X,y:V,name:'Current value',type:'scatter',mode:'lines',line:{color:css('--s1'),width:2},hovertemplate:'₹%{y:,.0f}'});
-    if (B.some(v=>v!=null)) tr.push({x:X,y:B,name:'If invested in '+d.benchmark.name,type:'scatter',mode:'lines',line:{color:css('--s2'),width:2},hovertemplate:'₹%{y:,.0f}'});
-    if (!hasV){ const lv=V[V.length-1]; if(lv!=null) tr.push({x:[X[X.length-1]],y:[lv],name:'Current value',mode:'markers',marker:{size:10,color:css('--s1'),line:{color:css('--card'),width:2}},hovertemplate:'₹%{y:,.0f}'}); }
+    if (hasV) tr.push({x:X,y:V,name:'Your portfolio',type:'scatter',mode:'lines',line:L2(css('--s1'),2.75),hovertemplate:'₹%{y:,.0f}'});
+    tr.push({x:X,y:C,name:'Invested',type:'scatter',mode:'lines',line:{color:css('--muted'),width:2,dash:'dot',shape:'hv'},hovertemplate:'₹%{y:,.0f}'});
+    if (B.some(v=>v!=null)) tr.push({x:X,y:B,name:'Same money in '+d.benchmark.name,type:'scatter',mode:'lines',line:L2(css('--s2'),2),opacity:.9,hovertemplate:'₹%{y:,.0f}'});
+    lay={yaxis:moneyAxis([V,C,B])};
   } else if (S.perfMode==='pnl'){
-    if (!hasV){ empty('perf','Daily P&L history needs historical prices — it fills in after the first Yahoo Finance refresh.'); return; }
-    const base = (i0>0 && s.total_pnl[i0-1]!=null)? s.total_pnl[i0-1] : 0;
+    if (!hasV){ empty('perf','P&L history needs live prices.'); return; }
+    const base=(i0>0 && s.total_pnl[i0-1]!=null)? s.total_pnl[i0-1] : 0;
     const Y=P.map(v=>v==null?null:v-base);
-    tr.push({x:X,y:Y,name:'P&L in period',type:'scatter',mode:'lines',fill:'tozeroy',line:{color:css('--s1'),width:2},fillcolor:'color-mix(in srgb, '+css('--s1')+' 12%, transparent)',hovertemplate:'%{y:,.0f}'});
-    lay={showlegend:false};
+    const last=Y[Y.length-1]; const col = last>=0?css('--good'):css('--bad');
+    tr.push({x:X,y:Y,name:'P&L',type:'scatter',mode:'lines',fill:'tozeroy',line:L2(col),fillcolor:`color-mix(in srgb, ${col} 14%, transparent)`,hovertemplate:'%{y:,.0f}'});
+    lay={showlegend:false,yaxis:moneyAxis([Y],{zero:true})};
   } else {
-    if (!hasV){ empty('perf','Return % needs historical prices — it fills in after the first Yahoo Finance refresh.'); return; }
-    // simple return on cost, portfolio vs benchmark mirror
-    const R=X.map((_,i)=> V[i]!=null && C[i]>0 ? ((P[i])/(N[i]>0?N[i]:C[i]))*100 : null);
+    if (!hasV){ empty('perf','Return % needs live prices.'); return; }
+    const R=X.map((_,i)=> V[i]!=null && N[i]>0 ? P[i]/N[i]*100 : null);
     const RB=X.map((_,i)=> B[i]!=null && N[i]>0 ? (B[i]-N[i])/N[i]*100 : null);
-    tr.push({x:X,y:R,name:'Portfolio (total P&L ÷ net invested)',type:'scatter',mode:'lines',line:{color:css('--s1'),width:2},hovertemplate:'%{y:.2f}%'});
-    if (RB.some(v=>v!=null)) tr.push({x:X,y:RB,name:d.benchmark.name,type:'scatter',mode:'lines',line:{color:css('--s2'),width:2},hovertemplate:'%{y:.2f}%'});
-    lay={yaxis:{ticksuffix:'%',gridcolor:css('--grid'),zerolinecolor:css('--axis'),automargin:true}};
+    tr.push({x:X,y:R,name:'Your portfolio',type:'scatter',mode:'lines',line:L2(css('--s1'),2.75),hovertemplate:'%{y:.1f}%'});
+    if (RB.some(v=>v!=null)) tr.push({x:X,y:RB,name:d.benchmark.name,type:'scatter',mode:'lines',line:L2(css('--s2'),2),hovertemplate:'%{y:.1f}%'});
+    lay={yaxis:moneyAxis([R,RB],{pct:true,zero:true})};
+  }
+  // label the latest value directly on the main line
+  if (hasV && S.perfMode==='value'){
+    const lv=V[V.length-1];
+    lay.annotations=[{x:X[X.length-1],y:lv,text:lakh(lv),showarrow:false,xanchor:'right',yanchor:'bottom',yshift:6,font:{size:13,color:css('--ink')},bgcolor:css('--card'),borderpad:2}];
   }
   plot('perf', tr, lay);
   const p=periodStats();
-  $('perfNote').innerHTML = p.pnl!=null ? `P&L this period <b class="${cls(p.pnl)}">${sfmt(p.pnl)}</b>${p.ret!=null?' ('+pct(p.ret)+')':''} · Net money added ${sfmt(p.flow)}` : '';
+  $('perfNote').innerHTML = p.pnl!=null ? `P&L in this period <b class="${cls(p.pnl)}">${sfmt(p.pnl)}</b>${p.ret!=null?' ('+pct(p.ret)+')':''} · money added ${lakh(p.flow,true)}` : '';
 }
 
-// ---------- allocation
+// ---------- allocation (small donut + readable list)
 function drawAlloc(){
   const H=S.data.holdings.filter(h=>h.qty>0 && h.value);
-  if (!H.length) return empty('alloc','No open positions');
-  let labels, values, colors;
-  if (S.allocMode==='stock'){ labels=H.map(h=>h.symbol); values=H.map(h=>h.value); colors=H.map(h=>colorOf(h.symbol)); }
-  else { const g={}; H.forEach(h=>g[h.sector]=(g[h.sector]||0)+h.value); labels=Object.keys(g); values=Object.values(g); colors=labels.map((_,i)=>css('--s'+(i+1))); }
-  plot('alloc',[{type:'pie',hole:.62,labels,values,sort:false,marker:{colors,line:{color:css('--card'),width:2}},textinfo:'label+percent',textposition:'outside',
-    hovertemplate:'%{label}<br>₹%{value:,.0f} · %{percent}<extra></extra>'}],
-    {showlegend:false,margin:{l:20,r:20,t:20,b:20},annotations:[{text:compact(values.reduce((a,b)=>a+b,0)),showarrow:false,font:{size:16,color:css('--ink')}}]});
+  if (!H.length){ $('allocList').innerHTML='<div class="muted">No open positions</div>'; return; }
+  let items;
+  if (S.allocMode==='stock') items=H.map(h=>({label:h.symbol, value:h.value, color:colorOf(h.symbol)}));
+  else { const g={}; H.forEach(h=>g[h.sector]=(g[h.sector]||0)+h.value); items=Object.entries(g).map(([k,v],i)=>({label:k,value:v,color:css('--s'+(i+1))})); }
+  items.sort((a,b)=>b.value-a.value);
+  const tot=items.reduce((a,b)=>a+b.value,0);
+  plot('alloc',[{type:'pie',hole:.64,labels:items.map(i=>i.label),values:items.map(i=>i.value),sort:false,direction:'clockwise',
+      marker:{colors:items.map(i=>i.color),line:{color:css('--card'),width:2}},textinfo:'none',hovertemplate:'%{label}<br>₹%{value:,.0f} · %{percent}<extra></extra>'}],
+    {showlegend:false,margin:{l:0,r:0,t:0,b:0},hovermode:'closest',annotations:[{text:lakh(tot),showarrow:false,font:{size:mobile()?13:15,color:css('--ink')}}]});
+  $('allocList').innerHTML = items.map(i=>`<div class="brow" style="grid-template-columns:1fr auto">
+      <div class="name"><span class="sw" style="background:${i.color}"></span>${esc(i.label)}</div>
+      <div class="val">${(i.value/tot*100).toFixed(1)}%<span class="sub2">${lakh(i.value)}</span></div></div>`).join('');
+}
+
+// ---------- contribution (diverging bar list)
+function drawContrib(){
+  const H=S.data.holdings.slice().sort((a,b)=>b.total_pnl-a.total_pnl);
+  const mx=Math.max(...H.map(h=>Math.abs(h.total_pnl)),1);
+  $('contrib').innerHTML = H.map(h=>{
+    const w=Math.abs(h.total_pnl)/mx*50, left = h.total_pnl>=0 ? 50 : 50-w;
+    return `<div class="brow" title="Unrealised ${sfmt(h.unrealised)} · Realised ${sfmt(h.realised)} · Dividends ${fmt(h.dividends)}">
+      <div class="name"><span class="sw" style="background:${colorOf(h.symbol)}"></span>${esc(h.symbol)}</div>
+      <div class="track div"><div class="mid"></div><div class="fill" style="left:${left}%;width:${Math.max(w,0.8)}%;background:${h.total_pnl>=0?css('--good'):css('--bad')}"></div></div>
+      <div class="val ${cls(h.total_pnl)}">${lakh(h.total_pnl,true)}<span class="sub2">${pct(h.invested?h.total_pnl/h.invested*100:null)}</span></div></div>`;
+  }).join('') + `<div class="note2">Total P&L = unrealised + realised + dividends. Bars to the right are gains, to the left losses.</div>`;
 }
 
 // ---------- cash flow
@@ -518,7 +684,6 @@ function cfBuckets(){
     else if (t.kind==='SELL'){ b.sell+=t.amount-t.charges; b.chg+=t.charges; b.real+=t.realised||0; }
     else if (t.kind==='DIVIDEND') b.div+=t.amount;
   }
-  // fill empty months so gaps are visible
   const keys=Object.keys(m).sort();
   if (S.gran==='M' && keys.length){
     const out=[]; let [y,mo]=keys[0].split('-').map(Number); const [ye,me]=keys[keys.length-1].split('-').map(Number);
@@ -527,71 +692,83 @@ function cfBuckets(){
   }
   return keys.map(k=>[k,m[k]]);
 }
-function cfLabel(k){ return S.gran==='Y'?k:MONTHS[+k.slice(5)-1]+' '+k.slice(2,4); }
+function cfLabel(k){ return S.gran==='Y'?k:MONTHS[+k.slice(5)-1]+" '"+k.slice(2,4); }
 function drawCF(id){
-  const B=cfBuckets();
-  if (!B.length) return empty(id,'No cash flows in this period');
+  const B=cfBuckets(), wrap=$(id+'wrap');
+  if (!B.length){ $(id).style.width=''; return empty(id,'No cash flows in this period'); }
+  // keep bars at a readable width: on narrow screens the chart scrolls sideways
+  const per = S.gran==='Y' ? 70 : 34;
+  const need = B.length*per + 70;
+  $(id).style.width = (wrap.clientWidth && need > wrap.clientWidth) ? need+'px' : '100%';
   const X=B.map(b=>cfLabel(b[0]));
+  const buy=B.map(b=>-b[1].buy), sell=B.map(b=>b[1].sell), div=B.map(b=>b[1].div);
   const tr=[
-    {x:X,y:B.map(b=>-b[1].buy),name:'Bought',type:'bar',marker:{color:css('--s1')},hovertemplate:'Bought ₹%{customdata:,.0f}<extra></extra>',customdata:B.map(b=>b[1].buy)},
-    {x:X,y:B.map(b=>b[1].sell),name:'Sold',type:'bar',marker:{color:css('--s2')},hovertemplate:'Sold ₹%{y:,.0f}<extra></extra>'},
-    {x:X,y:B.map(b=>b[1].div),name:'Dividends',type:'bar',marker:{color:css('--s3')},hovertemplate:'Dividends ₹%{y:,.0f}<extra></extra>'},
+    {x:X,y:buy,name:'Bought',type:'bar',marker:{color:css('--s1'),cornerradius:3},customdata:B.map(b=>b[1].buy),hovertemplate:'Bought ₹%{customdata:,.0f}<extra></extra>'},
+    {x:X,y:sell,name:'Sold',type:'bar',marker:{color:css('--s2'),cornerradius:3},hovertemplate:'Sold ₹%{y:,.0f}<extra></extra>'},
+    {x:X,y:div,name:'Dividends',type:'bar',marker:{color:css('--s3'),cornerradius:3},hovertemplate:'Dividends ₹%{y:,.0f}<extra></extra>'},
   ];
-  plot(id,tr,{barmode:'relative',xaxis:{type:'category',showgrid:false,linecolor:css('--axis')},yaxis:{tickprefix:'₹',gridcolor:css('--grid'),zerolinecolor:css('--axis'),automargin:true,tickformat:'~s'}});
+  const stackTop=B.map((b,i)=>sell[i]+div[i]);
+  plot(id,tr,{barmode:'relative',xaxis:{type:'category',tickangle:0,nticks:undefined,automargin:true},yaxis:moneyAxis([buy,stackTop],{zero:true}),hovermode:'x unified'});
+  requestAnimationFrame(()=>{ if (wrap.scrollWidth>wrap.clientWidth) wrap.scrollLeft = wrap.scrollWidth; });
+  if (id==='cf1'){ const t=B.reduce((a,[,b])=>({buy:a.buy+b.buy,out:a.out+b.sell+b.div}),{buy:0,out:0}); $('cf1note').innerHTML=`Bought <b>${lakh(t.buy)}</b> · got back <b>${lakh(t.out)}</b> (sold + dividends) · ${range().label}${B.length*per+70>wrap.clientWidth?' · swipe for earlier months':''}`; }
 }
 function drawCashflowView(){
   drawCF('cf2');
   const B=cfBuckets(); const t=B.reduce((a,[,b])=>({buy:a.buy+b.buy,sell:a.sell+b.sell,div:a.div+b.div,chg:a.chg+b.chg,real:a.real+b.real}),{buy:0,sell:0,div:0,chg:0,real:0});
-  $('cfKpis').innerHTML = kpi('Bought',fmt(t.buy),'incl. charges') + kpi('Sold',fmt(t.sell),'net of charges') + kpi('Dividends received',fmt(t.div),'',t.div>0?'pos':'') +
-    kpi('Net money added',sfmt(t.buy-t.sell-t.div),'Bought − sold − dividends') + kpi('Realised on sells',sfmt(t.real),'',cls(t.real)) + kpi('Charges',fmt(t.chg),'STT, brokerage, fees');
-  const s=S.data.series,[i0,i1]=idxRange();
-  plot('netinv',[{x:s.dates.slice(i0,i1+1),y:s.net_invested.slice(i0,i1+1),type:'scatter',mode:'lines',line:{color:css('--s1'),width:2,shape:'hv'},name:'Net invested',hovertemplate:'₹%{y:,.0f}<extra></extra>'}],{showlegend:false});
-  const rows=B.slice().reverse();
-  $('cfTable').innerHTML = `<thead><tr><th class="l">${S.gran==='Y'?'Year':'Month'}</th><th>Bought</th><th>Sold</th><th>Dividends</th><th>Charges</th><th>Net added</th><th>Realised</th></tr></thead><tbody>`+
-    rows.filter(([,b])=>b.buy||b.sell||b.div).map(([k,b])=>`<tr><td>${cfLabel(k)}</td><td>${fmt(b.buy)}</td><td>${fmt(b.sell)}</td><td>${fmt(b.div)}</td><td>${fmt(b.chg,1)}</td><td>${sfmt(b.buy-b.sell-b.div)}</td><td class="${cls(b.real)}">${sfmt(b.real)}</td></tr>`).join('')+
-    `<tr style="font-weight:650"><td>Total</td><td>${fmt(t.buy)}</td><td>${fmt(t.sell)}</td><td>${fmt(t.div)}</td><td>${fmt(t.chg,1)}</td><td>${sfmt(t.buy-t.sell-t.div)}</td><td class="${cls(t.real)}">${sfmt(t.real)}</td></tr></tbody>`;
+  $('cfKpis').innerHTML = kpi('Bought',fmt(t.buy),'incl. charges') + kpi('Sold',fmt(t.sell),'after charges') + kpi('Dividends',fmt(t.div)) +
+    kpi('Net money added',sfmt(t.buy-t.sell-t.div),'bought − sold − dividends') + kpi('Realised on sells',sfmt(t.real),'',cls(t.real)) + kpi('Charges',fmt(t.chg),'STT, brokerage, fees');
+  const s=S.data.series,[i0,i1]=idxRange(); const Y=s.net_invested.slice(i0,i1+1);
+  plot('netinv',[{x:s.dates.slice(i0,i1+1),y:Y,type:'scatter',mode:'lines',line:{color:css('--s1'),width:2.5,shape:'hv'},fill:'tozeroy',fillcolor:`color-mix(in srgb, ${css('--s1')} 10%, transparent)`,name:'Net invested',hovertemplate:'₹%{y:,.0f}<extra></extra>'}],{showlegend:false,yaxis:moneyAxis([Y],{zero:true})});
+  $('cfTable').innerHTML = `<thead><tr><th class="l">${S.gran==='Y'?'Year':'Month'}</th><th>Bought</th><th>Sold</th><th>Dividends</th><th class="hide-m">Charges</th><th>Net added</th><th>Realised</th></tr></thead><tbody>`+
+    B.slice().reverse().filter(([,b])=>b.buy||b.sell||b.div).map(([k,b])=>`<tr><td>${cfLabel(k)}</td><td>${fmt(b.buy)}</td><td>${fmt(b.sell)}</td><td>${fmt(b.div)}</td><td class="hide-m">${fmt(b.chg,1)}</td><td>${sfmt(b.buy-b.sell-b.div)}</td><td class="${cls(b.real)}">${sfmt(b.real)}</td></tr>`).join('')+
+    `<tr style="font-weight:700"><td>Total</td><td>${fmt(t.buy)}</td><td>${fmt(t.sell)}</td><td>${fmt(t.div)}</td><td class="hide-m">${fmt(t.chg,1)}</td><td>${sfmt(t.buy-t.sell-t.div)}</td><td class="${cls(t.real)}">${sfmt(t.real)}</td></tr></tbody>`;
 }
 
-// ---------- contribution
-function drawContrib(){
-  const H=S.data.holdings.slice().sort((a,b)=>a.total_pnl-b.total_pnl);
-  plot('contrib',[{type:'bar',orientation:'h',y:H.map(h=>h.symbol),x:H.map(h=>h.total_pnl),marker:{color:H.map(h=>colorOf(h.symbol))},
-    text:H.map(h=>sfmt(h.total_pnl)),textposition:'outside',cliponaxis:false,
-    customdata:H.map(h=>[h.unrealised,h.realised,h.dividends]),
-    hovertemplate:'<b>%{y}</b><br>Total ₹%{x:,.0f}<br>Unrealised ₹%{customdata[0]:,.0f}<br>Realised ₹%{customdata[1]:,.0f}<br>Dividends ₹%{customdata[2]:,.0f}<extra></extra>'}],
-    {showlegend:false,hovermode:'closest',margin:{l:80,r:70,t:8,b:30},xaxis:{tickprefix:'₹',tickformat:'~s',gridcolor:css('--grid'),zerolinecolor:css('--axis'),showgrid:true},yaxis:{automargin:true,gridcolor:'rgba(0,0,0,0)'}});
-}
-
-// ---------- holdings table
+// ---------- holdings: table on desktop, cards on phones
 const HCOLS=[
   ['symbol','Stock','l'],['qty','Qty'],['avg_price','Avg cost'],['ltp','LTP'],['day_change_pct','Day %'],['day_pnl',"Day P&L"],
   ['invested','Invested'],['value','Current'],['unrealised','Unrealised'],['unrealised_pct','Unreal. %'],['booked','Booked'],['total_pnl','Total P&L'],['xirr','XIRR'],['weight','Weight']];
-function drawHoldings(id, sortState){
+function holdingsRows(sortState){
   const tot=S.data.summary.current_value||1;
   const H=S.data.holdings.map(h=>({...h, booked:h.realised+h.dividends, weight:(h.value||0)/tot*100}));
   const {key,dir}=sortState;
   H.sort((a,b)=> (typeof a[key]==='string'? a[key].localeCompare(b[key]) : ((a[key]??-1e18)-(b[key]??-1e18)))*dir);
-  const t=$(id);
-  t.innerHTML = '<thead><tr>'+HCOLS.map(([k,l,c])=>`<th class="${c||''}" data-k="${k}">${l}${k===key?(dir>0?' ▲':' ▼'):''}</th>`).join('')+'</tr></thead><tbody>'+
+  return H;
+}
+function drawHoldings(id, sortState){
+  const H=holdingsRows(sortState), box=$(id), m=S.data.summary;
+  const star = h => h.price_fallback?' <span class="muted" title="Yahoo had no quote; broker snapshot price">*</span>':'';
+  if (mobile()){
+    box.innerHTML = `<div class="hcards">`+H.map(h=>`<div class="hcard" data-s="${esc(h.symbol)}">
+        <div class="r1"><span class="sym"><span class="sw" style="background:${colorOf(h.symbol)}"></span>${esc(h.symbol)}</span><span class="bigv">${fmt(h.value)}</span></div>
+        <div class="r2"><span>${num(h.qty)} × ₹${num(h.avg_price,2)}</span><span>LTP ₹${num(h.ltp,2)}${star(h)} <span class="${cls(h.day_change_pct)}">${pct(h.day_change_pct)}</span></span></div>
+        <div class="r3"><span>Unrealised <b class="${cls(h.unrealised)}">${lakh(h.unrealised,true)}</b> <span class="${cls(h.unrealised_pct)}">(${pct(h.unrealised_pct)})</span></span><span>Total <b class="${cls(h.total_pnl)}">${lakh(h.total_pnl,true)}</b></span></div>
+      </div>`).join('')+`</div>
+      <div class="note2" style="margin-top:10px">Total: ${fmt(m.current_value)} · unrealised <span class="${cls(m.unrealised)}">${sfmt(m.unrealised)}</span> · today <span class="${cls(m.day_pnl)}">${sfmt(m.day_pnl)}</span></div>`;
+    box.onclick = e => { const c=e.target.closest('[data-s]'); if (c) location.hash='#stock-'+c.dataset.s.toLowerCase(); };
+    return;
+  }
+  const {key,dir}=sortState;
+  box.innerHTML = '<div class="tablewrap"><table>'+'<thead><tr>'+HCOLS.map(([k,l,c])=>`<th class="${c||''}" data-k="${k}">${l}${k===key?(dir>0?' ▲':' ▼'):''}</th>`).join('')+'</tr></thead><tbody>'+
     H.map(h=>`<tr class="click" data-s="${esc(h.symbol)}">
-      <td><span class="sw" style="background:${colorOf(h.symbol)}"></span><b>${esc(h.symbol)}</b><div class="small muted">${esc(h.name)}</div></td>
-      <td>${num(h.qty)}</td><td>${num(h.avg_price,2)}</td><td>${num(h.ltp,2)}${h.price_fallback?' <span class="muted" title="Yahoo had no quote; broker snapshot price">*</span>':''}</td>
+      <td><span class="sw" style="background:${colorOf(h.symbol)}"></span><b>${esc(h.symbol)}</b><div class="sub" style="font-size:12px">${esc(h.name)}</div></td>
+      <td>${num(h.qty)}</td><td>${num(h.avg_price,2)}</td><td>${num(h.ltp,2)}${star(h)}</td>
       <td class="${cls(h.day_change_pct)}">${pct(h.day_change_pct)}</td><td class="${cls(h.day_pnl)}">${sfmt(h.day_pnl)}</td>
-      <td>${fmt(h.invested)}</td><td>${fmt(h.value)}</td>
+      <td>${fmt(h.invested)}</td><td><b>${fmt(h.value)}</b></td>
       <td class="${cls(h.unrealised)}">${sfmt(h.unrealised)}</td><td class="${cls(h.unrealised_pct)}">${pct(h.unrealised_pct)}</td>
       <td class="${cls(h.booked)}">${sfmt(h.booked)}</td><td class="${cls(h.total_pnl)}"><b>${sfmt(h.total_pnl)}</b></td>
       <td class="${cls(h.xirr)}">${pct(h.xirr)}</td><td>${h.weight.toFixed(1)}%</td></tr>`).join('')+
-    (()=>{const m=S.data.summary; return `<tr style="font-weight:650"><td>Total</td><td></td><td></td><td></td><td class="${cls(m.day_pnl_pct)}">${pct(m.day_pnl_pct)}</td><td class="${cls(m.day_pnl)}">${sfmt(m.day_pnl)}</td><td>${fmt(m.invested)}</td><td>${fmt(m.current_value)}</td><td class="${cls(m.unrealised)}">${sfmt(m.unrealised)}</td><td class="${cls(m.unrealised_pct)}">${pct(m.unrealised_pct)}</td><td class="${cls(m.realised+m.dividends)}">${sfmt(m.realised+m.dividends)}</td><td class="${cls(m.total_pnl)}">${sfmt(m.total_pnl)}</td><td class="${cls(m.xirr)}">${pct(m.xirr)}</td><td>100%</td></tr>`;})()+'</tbody>';
-  t.onclick = e => {
+    `<tr style="font-weight:700"><td>Total</td><td></td><td></td><td></td><td class="${cls(m.day_pnl_pct)}">${pct(m.day_pnl_pct)}</td><td class="${cls(m.day_pnl)}">${sfmt(m.day_pnl)}</td><td>${fmt(m.invested)}</td><td>${fmt(m.current_value)}</td><td class="${cls(m.unrealised)}">${sfmt(m.unrealised)}</td><td class="${cls(m.unrealised_pct)}">${pct(m.unrealised_pct)}</td><td class="${cls(m.realised+m.dividends)}">${sfmt(m.realised+m.dividends)}</td><td class="${cls(m.total_pnl)}">${sfmt(m.total_pnl)}</td><td class="${cls(m.xirr)}">${pct(m.xirr)}</td><td>100%</td></tr></tbody></table></div>`;
+  box.onclick = e => {
     const th=e.target.closest('th'); if (th){ const k=th.dataset.k; sortState.dir = sortState.key===k ? -sortState.dir : -1; sortState.key=k; drawHoldings(id,sortState); return; }
     const tr=e.target.closest('tr[data-s]'); if (tr) location.hash='#stock-'+tr.dataset.s.toLowerCase();
   };
 }
 function drawBooked(){
-  const T=S.data.transactions; const y={};
-  for (const t of T){ const k=t.date.slice(0,4); const r=y[k]||(y[k]={real:0,div:0,chg:0}); if(t.kind==='SELL') r.real+=t.realised||0; if(t.kind==='DIVIDEND') r.div+=t.amount; r.chg+=t.charges; }
-  $('booked').innerHTML='<thead><tr><th class="l">Year</th><th>Realised (trading)</th><th>Dividends</th><th>Booked total</th><th>Charges</th></tr></thead><tbody>'+
-    Object.keys(y).sort().reverse().map(k=>{const r=y[k]; return `<tr><td>${k}</td><td class="${cls(r.real)}">${sfmt(r.real)}</td><td>${fmt(r.div)}</td><td class="${cls(r.real+r.div)}">${sfmt(r.real+r.div)}</td><td>${fmt(r.chg,1)}</td></tr>`;}).join('')+'</tbody>';
+  const y={};
+  for (const t of S.data.transactions){ const k=t.date.slice(0,4); const r=y[k]||(y[k]={real:0,div:0,chg:0}); if(t.kind==='SELL') r.real+=t.realised||0; if(t.kind==='DIVIDEND') r.div+=t.amount; r.chg+=t.charges; }
+  $('booked').innerHTML='<thead><tr><th class="l">Year</th><th>Realised</th><th>Dividends</th><th>Booked</th><th class="hide-m">Charges</th></tr></thead><tbody>'+
+    Object.keys(y).sort().reverse().map(k=>{const r=y[k]; return `<tr><td>${k}</td><td class="${cls(r.real)}">${sfmt(r.real)}</td><td>${fmt(r.div)}</td><td class="${cls(r.real+r.div)}"><b>${sfmt(r.real+r.div)}</b></td><td class="hide-m">${fmt(r.chg,1)}</td></tr>`;}).join('')+'</tbody>';
 }
 
 // ---------- transactions
@@ -608,18 +785,19 @@ function txRows(sym){
   }
   return T.sort((a,b)=>b.date.localeCompare(a.date)||a.symbol.localeCompare(b.symbol));
 }
+const dshort = d => new Date(d+'T00:00:00').toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'});
 function txTable(T){
-  return '<thead><tr><th class="l">Date</th><th class="l">Stock</th><th class="l">Type</th><th>Qty</th><th>Price</th><th>Amount</th><th>Charges</th><th>Realised</th><th class="l">Notes</th></tr></thead><tbody>'+
-    T.map(t=>`<tr><td>${new Date(t.date+'T00:00:00').toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</td><td class="l">${esc(t.symbol)}</td><td class="l"><span class="tag ${t.kind}">${t.kind==='DIVIDEND'?'DIV':t.kind}</span></td>
-      <td>${num(t.qty)}</td><td>${t.kind==='DIVIDEND'?'₹'+num(t.price,2)+'/sh':num(t.price,2)}</td><td>${fmt(t.amount,1)}</td><td>${t.charges?fmt(t.charges,1):'—'}</td>
+  return '<thead><tr><th class="l">Date</th><th class="l">Stock</th><th class="l">Type</th><th>Qty</th><th>Price</th><th>Amount</th><th>Realised</th><th class="hide-m">Charges</th><th class="l hide-m">Notes</th></tr></thead><tbody>'+
+    T.map(t=>`<tr><td>${dshort(t.date)}</td><td class="l"><b>${esc(t.symbol)}</b></td><td class="l"><span class="tag ${t.kind}">${t.kind==='DIVIDEND'?'DIV':t.kind}</span></td>
+      <td>${num(t.qty)}</td><td>${t.kind==='DIVIDEND'?'₹'+num(t.price,2)+'/sh':num(t.price,2)}</td><td>${fmt(t.amount)}</td>
       <td class="${cls(t.realised)}">${t.realised!=null&&t.kind==='SELL'?sfmt(t.realised):''}</td>
-      <td class="l small muted">${[t.fills>1?t.fills+' fills':'', esc(t.remarks).slice(0,70)].filter(Boolean).join(' · ')}</td></tr>`).join('')+'</tbody>';
+      <td class="hide-m">${t.charges?fmt(t.charges,1):'—'}</td>
+      <td class="l sub hide-m" style="font-size:12px">${[t.fills>1?t.fills+' fills':'', esc(t.remarks).slice(0,70)].filter(Boolean).join(' · ')}</td></tr>`).join('')+'</tbody>';
 }
 function drawTx(){ const T=txRows(); $('tx').innerHTML=txTable(T); $('txCount').textContent=`${T.length} rows · ${range().label}${S.fstock?' · '+S.fstock:''}`; }
 function copyCsv(){
   const T=txRows(); const rows=[['date','symbol','type','qty','price','amount','charges','realised','remarks']].concat(T.map(t=>[t.date,t.symbol,t.kind,t.qty,(+t.price).toFixed(2),t.amount.toFixed(2),t.charges.toFixed(2),t.realised??'',`"${(t.remarks||'').replace(/"/g,'""')}"`]));
-  const text=rows.map(r=>r.join(',')).join('\n');
-  navigator.clipboard.writeText(text).then(()=>{$('csv').textContent='Copied ✓'; setTimeout(()=>$('csv').textContent='Copy CSV',1500);}).catch(()=>{$('csv').textContent='Copy blocked';});
+  navigator.clipboard.writeText(rows.map(r=>r.join(',')).join('\n')).then(()=>{$('csv').textContent='Copied ✓'; setTimeout(()=>$('csv').textContent='Copy CSV',1500);}).catch(()=>{$('csv').textContent='Copy blocked';});
 }
 
 // ---------- stock detail
@@ -627,11 +805,13 @@ function drawStock(){
   const d=S.data, h=d.holdings.find(x=>x.symbol===S.stock);
   if (!h){ $('dName').textContent='Unknown stock'; return; }
   const col=colorOf(h.symbol);
-  $('dName').innerHTML = `<span class="sw" style="background:${col}"></span>${esc(h.name)} <span class="muted" style="font-weight:400;font-size:15px">${esc(h.symbol)}</span>`;
-  $('dSub').innerHTML = `${esc(h.ticker)} · ${esc(h.sector)} · ${esc(h.exchange.join('/'))} · first bought ${esc(h.first_buy)} · LTP <b>${num(h.ltp,2)}</b> <span class="${cls(h.day_change)}">${h.day_change!=null?(h.day_change>0?'+':'')+h.day_change.toFixed(2):''} (${pct(h.day_change_pct)})</span>`;
-  $('dKpis').innerHTML = kpi('Quantity',num(h.qty),'Avg cost ₹'+num(h.avg_price,2)) + kpi('Invested',fmt(h.invested)) + kpi('Current value',fmt(h.value),'Day '+sfmt(h.day_pnl),cls(h.day_pnl)) +
-    kpi('Unrealised',sfmt(h.unrealised),pct(h.unrealised_pct),cls(h.unrealised)) + kpi('Booked',sfmt(h.realised+h.dividends),'Realised '+sfmt(h.realised)+' · Div '+fmt(h.dividends),cls(h.realised+h.dividends)) +
-    kpi('Total P&L',sfmt(h.total_pnl),'XIRR '+pct(h.xirr)+' · charges '+fmt(h.charges),cls(h.total_pnl));
+  $('dName').innerHTML = `<span class="sw" style="background:${col}"></span>${esc(h.name)}`;
+  $('dSub').textContent = `${h.symbol} · ${h.ticker} · ${h.sector} · since ${dshort(h.first_buy)}`;
+  $('dHero').innerHTML = `<div><div class="k">Last price</div><div class="big">₹${num(h.ltp,2)}</div><div class="chg ${cls(h.day_change)}">${h.day_change!=null?(h.day_change>0?'+':'−')+'₹'+Math.abs(h.day_change).toFixed(2):''} (${pct(h.day_change_pct)}) today</div></div>
+    <div><div class="k">Your value</div><div style="font-size:20px;font-weight:650">${fmt(h.value)}</div><div class="chg ${cls(h.day_pnl)}" style="font-size:14px">${sfmt(h.day_pnl)} today</div></div>`;
+  $('dKpis').innerHTML = kpi('Shares',num(h.qty),'avg cost ₹'+num(h.avg_price,2)) + kpi('Invested',fmt(h.invested)) +
+    kpi('Unrealised',sfmt(h.unrealised),pct(h.unrealised_pct),cls(h.unrealised)) + kpi('Booked',sfmt(h.realised+h.dividends),'realised '+lakh(h.realised)+' · div '+lakh(h.dividends),cls(h.realised+h.dividends)) +
+    kpi('Total P&L',sfmt(h.total_pnl),'XIRR '+pct(h.xirr),cls(h.total_pnl)) + kpi('Charges',fmt(h.charges),'STT, brokerage, fees');
   const s=d.series, st=s.stocks[h.symbol], [i0,i1]=idxRange();
   const X=s.dates.slice(i0,i1+1), close=st.close.slice(i0,i1+1), qty=st.qty.slice(i0,i1+1), cost=st.cost.slice(i0,i1+1);
   const avg=qty.map((q,i)=>q>0?cost[i]/q:null);
@@ -639,23 +819,22 @@ function drawStock(){
   const T=txRows(h.symbol).filter(t=>inRange(t.date));
   const buys=T.filter(t=>t.kind==='BUY'), sells=T.filter(t=>t.kind==='SELL');
   const tr=[];
-  if (hasPx) tr.push({x:X,y:close,name:'Close',type:'scatter',mode:'lines',line:{color:col,width:2},hovertemplate:'₹%{y:,.2f}'});
+  if (hasPx) tr.push({x:X,y:close,name:'Price',type:'scatter',mode:'lines',line:L2(col),hovertemplate:'₹%{y:,.2f}'});
   tr.push({x:X,y:avg,name:'Your avg cost',type:'scatter',mode:'lines',line:{color:css('--muted'),width:2,dash:'dot',shape:'hv'},hovertemplate:'₹%{y:,.2f}'});
-  const mk=(arr,name,sym,color)=>({x:arr.map(t=>t.date),y:arr.map(t=>t.price),name,mode:'markers',type:'scatter',
-    marker:{symbol:sym,size:arr.map(t=>Math.max(9,Math.min(22,6+Math.sqrt(t.amount)/12))),color,line:{color:css('--card'),width:1.5}},
-    customdata:arr.map(t=>[t.qty,t.amount]),hovertemplate:name+' %{customdata[0]:,} @ ₹%{y:,.2f} (₹%{customdata[1]:,.0f})'});
+  const mk=(arr,name,sym,c)=>({x:arr.map(t=>t.date),y:arr.map(t=>t.price),name,mode:'markers',type:'scatter',
+    marker:{symbol:sym,size:arr.map(t=>Math.max(10,Math.min(22,7+Math.sqrt(t.amount)/12))),color:c,line:{color:css('--card'),width:1.5}},
+    customdata:arr.map(t=>[t.qty,t.amount]),hovertemplate:name+' %{customdata[0]:,} @ ₹%{y:,.2f}'});
   if (buys.length) tr.push(mk(buys,'Buy','triangle-up',css('--s1')));
   if (sells.length) tr.push(mk(sells,'Sell','triangle-down',css('--s2')));
-  plot('dPrice',tr,{});
+  plot('dPrice',tr,{yaxis:{tickprefix:'₹',separatethousands:true}});
   if (hasPx){
     const val=X.map((_,i)=>close[i]!=null?qty[i]*close[i]:null);
-    plot('dPos',[{x:X,y:cost,name:'Invested',type:'scatter',mode:'lines',line:{color:css('--muted'),dash:'dot',width:2,shape:'hv'},hovertemplate:'₹%{y:,.0f}'},
-                 {x:X,y:val,name:'Value',type:'scatter',mode:'lines',line:{color:col,width:2},hovertemplate:'₹%{y:,.0f}'}],{});
-  } else empty('dPos','Position value history fills in after the first Yahoo Finance refresh.');
-  plot('dQty',[{x:X,y:qty,type:'scatter',mode:'lines',line:{color:col,width:2,shape:'hv'},fill:'tozeroy',fillcolor:'color-mix(in srgb, '+col+' 12%, transparent)',name:'Qty',hovertemplate:'%{y:,} shares<extra></extra>'}],{showlegend:false,yaxis:{tickprefix:'',gridcolor:css('--grid'),automargin:true}});
-  $('dTx').innerHTML=txTable(txRows(h.symbol).filter(t=>inRange(t.date)));
+    plot('dPos',[{x:X,y:val,name:'Value',type:'scatter',mode:'lines',line:L2(col),hovertemplate:'₹%{y:,.0f}'},
+                 {x:X,y:cost,name:'Invested',type:'scatter',mode:'lines',line:{color:css('--muted'),dash:'dot',width:2,shape:'hv'},hovertemplate:'₹%{y:,.0f}'}],{yaxis:moneyAxis([val,cost])});
+  } else empty('dPos','Needs live price history.');
+  plot('dQty',[{x:X,y:qty,type:'scatter',mode:'lines',line:{color:col,width:2.5,shape:'hv'},fill:'tozeroy',fillcolor:`color-mix(in srgb, ${col} 12%, transparent)`,name:'Shares',hovertemplate:'%{y:,} shares<extra></extra>'}],{showlegend:false,yaxis:{separatethousands:true}});
+  $('dTx').innerHTML=txTable(T);
 }
-
 
 // ---------- add trade / upload
 const EDIT = {mode:'none', side:'BUY'};
@@ -664,24 +843,20 @@ async function detectEditMode(){
   try { const r = await fetch('api/info',{cache:'no-store'}); if (r.ok && (await r.json()).mode==='local'){ EDIT.mode='local'; return; } } catch(e){}
   EDIT.mode = S.data.github_repo ? 'github' : 'none';
 }
-const openM = id => { $(id).classList.remove('hidden'); };
-const closeM = id => { $(id).classList.add('hidden'); };
-function symOptions(sel, extraLabel){
-  sel.innerHTML = S.data.holdings.map(h=>`<option value="${esc(h.symbol)}">${esc(h.symbol)} — ${esc(h.name)}</option>`).join('') + `<option value="__new">${extraLabel}</option>`;
-}
+const openM = id => $(id).classList.remove('hidden');
+const closeM = id => $(id).classList.add('hidden');
+function symOptions(sel, extraLabel){ sel.innerHTML = S.data.holdings.map(h=>`<option value="${esc(h.symbol)}">${esc(h.symbol)} — ${esc(h.name)}</option>`).join('') + `<option value="__new">${extraLabel}</option>`; }
 function tradeForm(){
-  const sym=$('mtSym').value, isNew=sym==='__new';
+  const sym=$('mtSym').value, isNew=sym==='__new', side=EDIT.side;
   document.querySelectorAll('#mTrade .newsym').forEach(e=>e.classList.toggle('hidden',!isNew));
-  const side=EDIT.side;
-  $('mtQtyL').firstChild.textContent = side==='DIVIDEND' ? 'Shares held on record date' : 'Quantity';
+  $('mtQtyL').firstChild.textContent = side==='DIVIDEND' ? 'Shares on record date' : 'Quantity';
   $('mtPxL').firstChild.textContent = side==='DIVIDEND' ? 'Dividend per share (₹)' : 'Price per share (₹)';
   $('mtChgL').classList.toggle('hidden', side==='DIVIDEND');
   const q=+$('mtQty').value||0, p=+$('mtPx').value||0, c=side==='DIVIDEND'?0:(+$('mtChg').value||0);
   const h=S.data.holdings.find(x=>x.symbol===sym);
-  if (side==='DIVIDEND' && h && !$('mtQty').value) $('mtQty').placeholder = String(h.qty);
   let msg='';
   if (side==='BUY') msg=`You pay ${fmt(q*p+c,2)}`+(h&&q?` · new avg ≈ ₹${num((h.invested+q*p)/(h.qty+q),2)} on ${num(h.qty+q)} shares`:'');
-  else if (side==='SELL') msg = h ? `You hold ${num(h.qty)} · receive ${fmt(q*p-c,2)}`+(q?` · P&L vs current avg ≈ ${sfmt(q*(p-h.avg_price))} (final figure uses FIFO)`:'') : 'Selling a stock you don\'t hold here';
+  else if (side==='SELL') msg = h ? `You hold ${num(h.qty)} · you receive ${fmt(q*p-c,2)}`+(q?` · P&L vs avg ≈ ${sfmt(q*(p-h.avg_price))} (final uses FIFO)`:'') : 'You don’t hold this stock here';
   else msg=`Dividend ${fmt(q*p,2)}`;
   $('mtCalc').textContent=msg;
 }
@@ -692,7 +867,7 @@ function readTrade(){
     ticker:isNew?$('mtTicker').value.trim():'', name:isNew?$('mtName').value.trim():'', sector:isNew?$('mtSector').value.trim():'', notes:$('mtNotes').value.trim()};
   if (!t.date) return [null,'Pick a date'];
   if (!/^[A-Z0-9&-]{1,20}$/.test(t.symbol)) return [null,'Enter a valid symbol'];
-  if (isNew && !t.ticker) return [null,'Add the Yahoo ticker so live prices can be fetched (NSE: SYMBOL.NS, BSE: code.BO)'];
+  if (isNew && !t.ticker) return [null,'Add the Yahoo ticker (NSE: SYMBOL.NS, BSE: CODE.BO) so prices can be fetched'];
   if (!(t.qty>0) || !(t.price>=0) || (t.action!=='DIVIDEND' && !(t.price>0))) return [null,'Enter quantity and price'];
   const h=S.data.holdings.find(x=>x.symbol===t.symbol);
   if (t.action==='SELL' && (!h || t.qty>h.qty+1e-9)) return [null,`You only hold ${h?num(h.qty):0} ${t.symbol}`];
@@ -704,21 +879,19 @@ async function saveTrade(){
   const header='date,symbol,action,qty,price,charges,exchange,ticker,name,sector,notes';
   const line=[t.date,t.symbol,t.action,t.qty,t.price,t.charges,t.exchange,t.ticker,t.name,t.sector,t.notes].map(csvCell).join(',');
   if (EDIT.mode==='local'){
-    $('mtSave').disabled=true; $('mtSave').textContent='Saving & refreshing…';
+    $('mtSave').disabled=true; $('mtSave').textContent='Saving…';
     try{ const r=await fetch('api/trade',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(t)}); const j=await r.json();
-      if(!r.ok||!j.ok) throw new Error(j.error||j.last_error||'Save failed');
-      closeM('mTrade'); await load(false);
-    }catch(e){ $('mtErr').textContent=e.message; }
+      if(!r.ok||!j.ok) throw new Error(j.error||j.last_error||'Save failed'); closeM('mTrade'); await load(false); render(); }
+    catch(e){ $('mtErr').textContent=e.message; }
     $('mtSave').disabled=false; $('mtSave').textContent='Save trade'; return;
   }
   if (EDIT.mode==='github'){
     const fname=`inputs/trades/${t.date}-${t.symbol}-${t.action}-${Date.now().toString(36)}.csv`;
     const url=`https://github.com/${S.data.github_repo}/new/${S.data.github_branch||'main'}?filename=${encodeURIComponent(fname)}&value=${encodeURIComponent(header+'\n'+line+'\n')}&message=${encodeURIComponent(`Add ${t.action} ${t.qty} ${t.symbol} @ ${t.price}`)}`;
-    $('mtOut').innerHTML=`<div class="note" style="margin-top:10px">GitHub opens with this trade pre-filled. Press <b>Commit changes</b> there — the dashboard rebuilds with fresh prices in about 2 minutes.</div><div class="actions"><a class="btn" target="_blank" rel="noopener" href="${esc(url)}">Open GitHub to commit ↗</a></div>`;
+    $('mtOut').innerHTML=`<div class="note" style="margin-top:10px">GitHub opens with this trade filled in. Tap <b>Commit changes</b> there; the dashboard updates in about 2 minutes.</div><div class="actions"><a class="btn" target="_blank" rel="noopener" href="${esc(url)}">Open GitHub to save ↗</a></div>`;
     return;
   }
-  $('mtOut').innerHTML=`<div class="note" style="margin-top:10px">This preview can't save. Add this line to <b>inputs/trades/manual_trades.csv</b> (or use the hosted site / <code>serve_local.py</code>, where this button saves directly):</div><pre class="code">${esc(line)}</pre><div class="actions"><button id="mtCopy">Copy line</button></div>`;
-  $('mtCopy').onclick=()=>navigator.clipboard.writeText(line).then(()=>$('mtCopy').textContent='Copied ✓').catch(()=>$('mtCopy').textContent='Copy blocked — select the text');
+  $('mtOut').innerHTML=`<div class="note" style="margin-top:10px">Add this line to <b>inputs/trades/manual_trades.csv</b>:</div><pre class="code">${esc(line)}</pre>`;
 }
 async function saveUpload(){
   const sel=$('muSym').value, sym=(sel==='__new'?$('muNewSym').value:sel).trim().toUpperCase();
@@ -727,25 +900,25 @@ async function saveUpload(){
   if (EDIT.mode==='local'){
     const f=$('muFile').files[0]; if(!f){ $('muErr').textContent='Choose the .xlsx file'; return; }
     const fd=new FormData(); fd.append('symbol',sym); fd.append('file',f);
-    $('muSave').disabled=true; $('muSave').textContent='Uploading & refreshing…';
-    try{ const r=await fetch('api/upload',{method:'POST',body:fd}); const j=await r.json(); if(!r.ok||!j.ok) throw new Error(j.error||j.last_error||'Upload failed'); closeM('mUp'); await load(false); }
+    $('muSave').disabled=true; $('muSave').textContent='Uploading…';
+    try{ const r=await fetch('api/upload',{method:'POST',body:fd}); const j=await r.json(); if(!r.ok||!j.ok) throw new Error(j.error||j.last_error||'Upload failed'); closeM('mUp'); await load(false); render(); }
     catch(e){ $('muErr').textContent=e.message; }
     $('muSave').disabled=false; $('muSave').textContent='Upload'; return;
   }
   const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');
   if (EDIT.mode==='github'){
     const url=`https://github.com/${S.data.github_repo}/upload/${S.data.github_branch||'main'}/inputs`;
-    $('muOut').innerHTML=`<div class="note" style="margin-top:10px">1. Rename your file to <b>${esc(sym)}_${stamp}.xlsx</b> (the part before “_” tells the dashboard which stock it is).<br>2. Drag it into the GitHub page and press <b>Commit changes</b>. The dashboard rebuilds in about 2 minutes.${sel==='__new'?'<br>3. Add the new stock’s Yahoo ticker to <b>config.json</b> under "symbols".':''}</div><div class="actions"><a class="btn" target="_blank" rel="noopener" href="${esc(url)}">Open GitHub upload ↗</a></div>`;
+    $('muOut').innerHTML=`<div class="note" style="margin-top:10px">1. Rename your file to <b>${esc(sym)}_${stamp}.xlsx</b> (the part before “_” is the stock).<br>2. Drop it on the GitHub page and tap <b>Commit changes</b>. The dashboard updates in about 2 minutes.${sel==='__new'?'<br>3. Add the new stock’s Yahoo ticker to <b>config.json</b>.':''}</div><div class="actions"><a class="btn" target="_blank" rel="noopener" href="${esc(url)}">Open GitHub upload ↗</a></div>`;
     return;
   }
-  $('muOut').innerHTML=`<div class="note" style="margin-top:10px">This preview can't store files. Save the export as <b>inputs/${esc(sym)}_${stamp}.xlsx</b> in the dashboard folder, or upload it from the hosted site / <code>serve_local.py</code>.</div>`;
+  $('muOut').innerHTML=`<div class="note" style="margin-top:10px">Save the export as <b>inputs/${esc(sym)}_${stamp}.xlsx</b> in the dashboard folder.</div>`;
 }
 function setupEdit(){
-  $('addBtn').onclick=()=>{ symOptions($('mtSym'),'➕ New stock…'); $('mtDate').value=new Date(Date.now()+330*60000).toISOString().slice(0,10);
+  $('addBtn').onclick=()=>{ symOptions($('mtSym'),'➕ New stock…'); $('mtDate').value=istNow().toISOString().slice(0,10);
     ['mtQty','mtPx','mtNotes','mtNewSym','mtTicker','mtName','mtSector'].forEach(i=>$(i).value=''); $('mtChg').value='0'; $('mtOut').innerHTML=''; $('mtErr').textContent='';
     if (S.view==='stock' && S.stock) $('mtSym').value=S.stock;
-    $('mtSave').textContent = EDIT.mode==='local'?'Save trade':EDIT.mode==='github'?'Prepare commit':'Generate line';
-    tradeForm(); openM('mTrade'); $('mtQty').focus(); };
+    $('mtSave').textContent = EDIT.mode==='local'?'Save trade':EDIT.mode==='github'?'Continue':'Show line';
+    tradeForm(); openM('mTrade'); };
   $('mtSide').onclick=e=>{ const a=e.target.dataset.a; if(!a) return; EDIT.side=a; segOn('mtSide','a',a); tradeForm(); };
   for (const i of ['mtSym','mtQty','mtPx','mtChg']) $(i).oninput=tradeForm;
   $('mtCancel').onclick=()=>closeM('mTrade'); $('mtSave').onclick=saveTrade;
@@ -753,9 +926,21 @@ function setupEdit(){
     $('muFileL').classList.toggle('hidden', EDIT.mode!=='local'); $('muSave').textContent = EDIT.mode==='local'?'Upload':'Show me how'; openM('mUp'); };
   $('muSym').oninput=()=>document.querySelector('#mUp .newsym2').classList.toggle('hidden',$('muSym').value!=='__new');
   $('muCancel').onclick=()=>closeM('mUp'); $('muSave').onclick=saveUpload;
-  for (const id of ['mTrade','mUp']) $(id).onclick=e=>{ if(e.target.id===id) closeM(id); };
-  document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeM('mTrade'); closeM('mUp'); } });
+  $('miClose').onclick=()=>closeM('mInstall');
+  for (const id of ['mTrade','mUp','mInstall']) $(id).onclick=e=>{ if(e.target.id===id) closeM(id); };
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeM('mTrade'); closeM('mUp'); closeM('mInstall'); } });
 }
+
+// ---------- install as app (PWA)
+let deferredPrompt=null;
+const standalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); deferredPrompt=e; if(!standalone()) $('installBtn').classList.remove('hidden'); });
+if (!standalone() && /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.__EMBED__) $('installBtn').classList.remove('hidden');
+$('installBtn').onclick = async ()=>{
+  if (deferredPrompt){ deferredPrompt.prompt(); try{ await deferredPrompt.userChoice; }catch(e){} deferredPrompt=null; $('installBtn').classList.add('hidden'); }
+  else openM('mInstall');
+};
+if ('serviceWorker' in navigator && !window.__EMBED__ && location.protocol==='https:') navigator.serviceWorker.register('sw.js').catch(()=>{});
 
 // ---------- render
 function render(){
@@ -763,7 +948,7 @@ function render(){
   header();
   segOn('presets','p', S.year?'':S.preset);
   $('filters').classList.toggle('hidden', S.view==='holdings');
-  if (S.view==='overview'){ drawKpis(); drawPerf(); drawAlloc(); drawCF('cf1'); drawContrib(); drawHoldings('hold1',S.sort); }
+  if (S.view==='overview'){ drawHero(); drawKpis(); drawPerf(); drawContrib(); drawAlloc(); drawCF('cf1'); drawHoldings('hold1',S.sort); }
   else if (S.view==='holdings'){ drawHoldings('hold2',S.sort2); drawBooked(); }
   else if (S.view==='cashflow') drawCashflowView();
   else if (S.view==='transactions') drawTx();
@@ -771,7 +956,10 @@ function render(){
 }
 
 load(true);
-if (!window.__EMBED__) setInterval(()=>load(false), REFRESH_MS);
+if (!window.__EMBED__){
+  setInterval(()=>{ if (!document.hidden) load(false); }, POLL_MS);
+  document.addEventListener('visibilitychange', ()=>{ if (!document.hidden && Date.now()-S.loadedAt>30000) load(false); });
+}
 })();
 </script>
 </body>
