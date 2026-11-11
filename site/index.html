@@ -715,7 +715,7 @@ function drawPerf(){
   // label the latest value directly on the main line
   if (hasV && S.perfMode==='value'){
     let li=V.length-1; while(li>0 && V[li]==null) li--; const lv=V[li];
-    lay.annotations=[{x:X[li],y:lv,text:lakh(lv),showarrow:false,xanchor:'right',yanchor:'bottom',yshift:6,font:{size:13,color:css('--ink')},bgcolor:css('--card'),borderpad:2}];
+    lay.annotations=[{x:X[li],y:lv,text:lakh(lv),showarrow:false,xanchor:'right',yanchor:'bottom',yshift:10,font:{size:13,color:css('--ink')}}];
   }
   plot('perf', tr, lay);
   const p=periodStats();
