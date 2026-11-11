@@ -245,17 +245,32 @@ def fetch_yahoo(tickers, start):
             idx = idx.tz_convert(IST) if idx.tz is not None else idx.tz_localize("UTC").tz_convert(IST)
             si.index = idx
         out_intra[tk] = si
-    # live quote: last 1d close is today's running price during market hours
+    # live quote. Yahoo's daily history sometimes skips a session, so the previous close is taken
+    # from (1) Yahoo's quote data, else (2) the last hourly bar of the prior session, else (3) daily bars.
     quotes = {}
     for tk in tickers:
         s = out_daily[tk]
         if len(s) == 0:
             continue
-        last_intra = out_intra[tk]
-        ltp = float(last_intra.iloc[-1]) if len(last_intra) else float(s.iloc[-1])
-        last_day = s.index[-1].date()
-        prev = float(s.iloc[-2]) if len(s) > 1 else float(s.iloc[-1])
-        quote_time = last_intra.index[-1].isoformat() if len(last_intra) else str(last_day)
+        intra = out_intra[tk]
+        ltp = float(intra.iloc[-1]) if len(intra) else float(s.iloc[-1])
+        last_day = intra.index[-1].date() if len(intra) else s.index[-1].date()
+        prev = None
+        if len(intra):
+            before = intra[[t.date() < last_day for t in intra.index]]
+            if len(before):
+                prev = float(before.iloc[-1])
+        if prev is None:
+            ds = s[[i.date() < last_day for i in s.index]]
+            prev = float(ds.iloc[-1]) if len(ds) else float(s.iloc[-1])
+        try:
+            fi = yf.Ticker(tk).fast_info
+            lp, pc = fi.get("lastPrice"), fi.get("previousClose")
+            if lp and pc and lp > 0 and pc > 0:
+                ltp, prev = float(lp), float(pc)
+        except Exception:
+            pass
+        quote_time = intra.index[-1].isoformat() if len(intra) else str(last_day)
         quotes[tk] = dict(ltp=ltp, prev_close=prev, as_of=quote_time, last_day=str(last_day))
     return out_daily, out_intra, quotes
 
