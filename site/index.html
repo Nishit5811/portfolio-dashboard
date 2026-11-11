@@ -43,6 +43,8 @@
   --good:#22b33a; --bad:#ef6b6b; --wash:rgba(57,135,229,.14); --accent:#3987e5;
 }
 *{box-sizing:border-box}
+html,body{overflow-x:hidden}
+.card,.grid>*{min-width:0}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--page);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-top:var(--safe-t)}
 .wrap{max-width:1240px;margin:0 auto;padding:14px 16px 24px}
@@ -83,7 +85,9 @@ button.icon{padding:8px 11px;min-width:42px}
 .rangeLbl{font-size:13px;color:var(--ink2)}
 
 /* hero + kpis */
-.hero{background:var(--card);border:1px solid var(--ring);border-radius:16px;padding:16px 18px;margin-bottom:12px;display:flex;flex-wrap:wrap;gap:14px 40px;align-items:flex-end}
+.hero{background:var(--card);border:1px solid var(--ring);border-radius:16px;padding:16px 18px;margin-bottom:12px;display:flex;flex-wrap:wrap;gap:14px 64px;align-items:flex-start}
+.hero .mid{font-size:22px;font-weight:700;line-height:1.1;margin-top:2px}
+.hero .k{margin-bottom:2px}
 .hero .k{font-size:13px;color:var(--ink2)}
 .hero .big{font-size:34px;font-weight:750;letter-spacing:-.5px;line-height:1.1}
 .hero .chg{font-size:16px;font-weight:600;margin-top:2px}
@@ -107,7 +111,11 @@ button.icon{padding:8px 11px;min-width:42px}
 
 /* bar lists (allocation / contribution) */
 .blist{display:flex;flex-direction:column;gap:12px}
-.brow{display:grid;grid-template-columns:minmax(84px,auto) 1fr auto;gap:10px;align-items:center;font-size:14px}
+.brow{display:grid;grid-template-columns:104px minmax(60px,1fr) 78px;gap:12px;align-items:center;font-size:14px;padding:4px 6px;margin:0 -6px;border-radius:10px;cursor:pointer}
+.brow:hover{background:var(--wash)}
+.brow.dim{opacity:.38}
+.brow.sel{background:var(--wash);box-shadow:inset 0 0 0 1px var(--accent)}
+.brow .name{overflow:hidden;text-overflow:ellipsis}
 .brow .name{font-weight:600;white-space:nowrap}
 .brow .val{font-variant-numeric:tabular-nums;font-weight:600;text-align:right;white-space:nowrap}
 .brow .sub2{display:block;font-weight:400;font-size:12px;color:var(--ink2)}
@@ -116,6 +124,14 @@ button.icon{padding:8px 11px;min-width:42px}
 .track.div .mid{position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--axis)}
 .sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:7px;vertical-align:0}
 .donutwrap{display:grid;grid-template-columns:170px 1fr;gap:16px;align-items:center}
+#allocList .brow{grid-template-columns:1fr 78px}
+.active{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;color:var(--ink2)}
+.fchip{display:inline-flex;align-items:center;gap:6px;background:var(--wash);color:var(--ink);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);border-radius:999px;padding:3px 6px 3px 10px;font-size:13px}
+.fchip button{min-height:0;padding:0 6px;border:0;background:transparent;font-size:15px;line-height:1.2;color:var(--ink2)}
+.linkbtn{min-height:0;padding:3px 8px;border:0;background:transparent;color:var(--accent);font-size:13px}
+.hcard.sel{box-shadow:inset 0 0 0 1.5px var(--accent)}
+.kpi .v,.hero .big,.hero .mid,.brow .val{font-variant-numeric:tabular-nums}
+.cardhead h2{line-height:1.3}
 .donut{height:170px}
 
 /* tables */
@@ -170,10 +186,11 @@ pre.code{background:var(--page);border:1px solid var(--ring);border-radius:8px;p
   .top h1{font-size:17px;line-height:1.25}
   .actions-top{flex-wrap:nowrap;gap:5px}
   .actions-top button{min-width:38px;min-height:38px;padding:6px 9px}
-  .selects{display:grid;grid-template-columns:1fr 1fr 1.2fr}
+  .selects{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.2fr)}
   .selects select{width:100%}
   .actions-top .txt{display:none}
   .filters{flex-direction:column;align-items:stretch;gap:8px}
+  .filters>*{min-width:0;max-width:100%}
   .selects select{flex:1;padding:6px 8px;font-size:14px}
   .hero{padding:14px 16px;gap:10px 24px}
   .hero .big{font-size:30px}
@@ -185,6 +202,11 @@ pre.code{background:var(--page);border:1px solid var(--ring);border-radius:8px;p
   .chart{height:300px}
   .chart.sm{height:260px}
   .donutwrap{grid-template-columns:130px 1fr;gap:12px}
+  .brow{grid-template-columns:92px minmax(40px,1fr) 70px;gap:10px}
+  .hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px 16px}
+  .hero .big{font-size:26px}
+  .hero .mid{font-size:19px}
+  .hero .chg{font-size:13.5px}
   .donut{height:130px}
   .form{grid-template-columns:1fr}
   .hide-m{display:none}
@@ -228,7 +250,7 @@ pre.code{background:var(--page);border:1px solid var(--ring);border-radius:8px;p
       <select id="fMonth" aria-label="Month" disabled></select>
       <select id="fStock" aria-label="Stock"></select>
     </div>
-    <span class="rangeLbl" id="rangeLbl"></span>
+    <div class="active" id="active"></div>
   </div>
 
   <!-- OVERVIEW -->
@@ -245,25 +267,25 @@ pre.code{background:var(--page);border:1px solid var(--ring);border-radius:8px;p
     </div>
     <div class="grid two" style="margin-top:12px">
       <div class="card">
-        <div class="cardhead"><h2>Total P&amp;L by stock</h2></div>
+        <div class="cardhead"><h2 id="contribTitle">Total P&amp;L by stock</h2><span class="sub">Tap a stock to filter</span></div>
         <div id="contrib" class="blist"></div>
       </div>
       <div class="card">
-        <div class="cardhead"><h2>Allocation</h2>
+        <div class="cardhead"><h2 id="allocTitle">Allocation</h2>
           <div class="seg" id="allocMode"><button data-m="stock" class="on">Stock</button><button data-m="sector">Sector</button></div>
         </div>
         <div class="donutwrap"><div id="alloc" class="donut"></div><div id="allocList" class="blist"></div></div>
       </div>
     </div>
     <div class="card" style="margin-top:12px">
-      <div class="cardhead"><h2>Cash flow</h2>
+      <div class="cardhead"><h2 id="cf1Title">Cash flow</h2>
         <div class="seg" id="cfGran1"><button data-g="M" class="on">Monthly</button><button data-g="Y">Yearly</button></div>
       </div>
       <div class="hscroll" id="cf1wrap"><div id="cf1" class="chart sm"></div></div>
       <div class="note2" id="cf1note"></div>
     </div>
     <div class="card" style="margin-top:12px">
-      <div class="cardhead"><h2>Holdings</h2><span class="sub">Tap a stock for details</span></div>
+      <div class="cardhead"><h2>Holdings · now</h2><span class="sub">Tap a stock for details</span></div>
       <div id="hold1"></div>
     </div>
   </section>
@@ -485,15 +507,15 @@ function inRange(date){ const {a,b}=range(); return date>=a && date<=b; }
 // ---------- filters & routing
 function setupFilters(){
   const P=['1D','1W','1M','3M','6M','YTD','1Y','ALL'];
-  $('presets').innerHTML = P.map(p=>`<button data-p="${p}" class="${p==='ALL'?'on':''}">${p==='ALL'?'All':p}</button>`).join('');
-  $('presets').onclick = e => { const p=e.target.dataset.p; if(!p) return; S.preset=p; S.year=''; S.month=''; $('fYear').value=''; $('fMonth').value=''; $('fMonth').disabled=true; render(); };
+  $('presets').innerHTML = P.map(p=>`<button data-p="${p}">${p==='ALL'?'All':p}</button>`).join('');
+  $('presets').onclick = e => { const p=e.target.dataset.p; if(!p) return; setFilter({preset:p, year:'', month:''}); };
   const years=[...new Set(dates().map(d=>d.slice(0,4)))];
   $('fYear').innerHTML = '<option value="">Year</option>'+years.map(y=>`<option>${y}</option>`).join('');
   $('fMonth').innerHTML = '<option value="">Month</option>'+MONTHS.map((m,i)=>`<option value="${i+1}">${m}</option>`).join('');
-  $('fYear').onchange = e => { S.year=e.target.value; S.month=''; $('fMonth').value=''; $('fMonth').disabled=!S.year; render(); };
-  $('fMonth').onchange = e => { S.month=e.target.value; render(); };
+  $('fYear').onchange = e => setFilter({year:e.target.value, month:'', preset:e.target.value?S.preset:'ALL'});
+  $('fMonth').onchange = e => setFilter({month:e.target.value});
   $('fStock').innerHTML = '<option value="">All stocks</option>'+S.data.holdings.map(h=>`<option value="${h.symbol}">${esc(h.symbol)}</option>`).join('');
-  $('fStock').onchange = e => { S.fstock=e.target.value; render(); };
+  $('fStock').onchange = e => setFilter({fstock:e.target.value});
   $('perfMode').onclick = e => { const m=e.target.dataset.m; if(!m) return; S.perfMode=m; segOn('perfMode','m',m); drawPerf(); };
   $('allocMode').onclick = e => { const m=e.target.dataset.m; if(!m) return; S.allocMode=m; segOn('allocMode','m',m); drawAlloc(); };
   for (const id of ['cfGran1','cfGran2']) $(id).onclick = e => { const g=e.target.dataset.g; if(!g) return; S.gran=g; segOn('cfGran1','g',g); segOn('cfGran2','g',g); render(); };
@@ -501,8 +523,40 @@ function setupFilters(){
   $('csv').onclick = copyCsv;
   $('reload').onclick = async () => { $('reload').textContent='…'; if (EDIT.mode==='local'){ try{ await fetch('api/refresh',{method:'POST'}); }catch(e){} } await load(false); render(); $('reload').textContent='↻'; };
   $('theme').onclick = () => { const r=document.documentElement; const dark = r.dataset.theme ? r.dataset.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches; r.dataset.theme = dark?'light':'dark'; try{localStorage.setItem('pd-theme',r.dataset.theme);}catch(e){} render(); };
+  $('active').onclick = e => { const k=e.target.dataset.clear; if(!k) return;
+    if (k==='all') setFilter({preset:'ALL',year:'',month:'',fstock:''});
+    else if (k==='period') setFilter({preset:'ALL',year:'',month:''});
+    else if (k==='month') setFilter({month:''});
+    else setFilter({[k]:''}); };
+  try{ const f=JSON.parse(localStorage.getItem('pd-filters')||'{}');
+       const yrs=new Set(years), syms=new Set(S.data.holdings.map(h=>h.symbol));
+       if (f.preset && P.includes(f.preset)) S.preset=f.preset;
+       if (f.year && yrs.has(f.year)) { S.year=f.year; if (f.month) S.month=f.month; }
+       if (f.fstock && syms.has(f.fstock)) S.fstock=f.fstock;
+       if (f.gran) S.gran=f.gran; }catch(e){}
   window.addEventListener('hashchange', route);
-  let rt; window.addEventListener('resize', ()=>{ clearTimeout(rt); rt=setTimeout(render,200); });
+  let rt, lastW=innerWidth; window.addEventListener('resize', ()=>{ clearTimeout(rt); rt=setTimeout(()=>{ if (Math.abs(innerWidth-lastW)>20){ lastW=innerWidth; render(); } },200); });
+}
+function setFilter(ch){
+  Object.assign(S, ch);
+  if (!S.year) S.month='';
+  try{ localStorage.setItem('pd-filters', JSON.stringify({preset:S.preset,year:S.year,month:S.month,fstock:S.fstock,gran:S.gran})); }catch(e){}
+  render();
+}
+function syncControls(){
+  segOn('presets','p', S.year?'':S.preset);
+  $('fYear').value=S.year; $('fMonth').value=S.month; $('fMonth').disabled=!S.year; $('fStock').value=S.fstock;
+  segOn('cfGran1','g',S.gran); segOn('cfGran2','g',S.gran);
+  $('fStock').classList.toggle('hidden', S.view==='stock');
+}
+function drawActive(){
+  const chips=[], r=range();
+  if (r.label!=='All time'){
+    chips.push(`<span class="fchip">${esc(r.label)}<button data-clear="${S.month?'month':'period'}" aria-label="Clear period">×</button></span>`);
+  }
+  if (S.fstock && S.view!=='stock') chips.push(`<span class="fchip">${esc(S.fstock)}<button data-clear="fstock" aria-label="Clear stock">×</button></span>`);
+  $('active').innerHTML = chips.length ? 'Filtered: '+chips.join('')+(chips.length>1?'<button class="linkbtn" data-clear="all">Clear all</button>':'')
+                                       : '<span>Showing all stocks · all time. Tap a chart to filter.</span>';
 }
 try{ const t=localStorage.getItem('pd-theme'); if(t) document.documentElement.dataset.theme=t; }catch(e){}
 function segOn(id,attr,val){ [...$(id).children].forEach(b=>b.classList.toggle('on', b.dataset[attr]===val)); }
@@ -535,43 +589,64 @@ function header(){
   const b=$('banner');
   if (d.price_source!=='yahoo'){ b.classList.remove('hidden'); b.innerHTML='<b>Preview.</b> Prices from your broker export; history and NIFTY comparison fill in once live Yahoo data loads.'; }
   else b.classList.add('hidden');
-  $('rangeLbl').textContent = 'Showing: '+range().label;
   $('foot').textContent = `${d.transactions.length} transactions · Prices from Yahoo Finance, about 15 min delayed · Benchmark: ${d.benchmark.name} with the same rupee flows · Not investment advice.`;
 }
 setInterval(()=>{ if(S.data) header(); }, 30000);
 
 // ---------- KPIs
 function kpi(k,v,dl='',c=''){ return `<div class="card kpi"><div class="k">${k}</div><div class="v ${c}">${v}</div><div class="d">${dl}</div></div>`; }
-function periodStats(){
-  const s=S.data.series, [i0,i1]=idxRange();
+function scope(sym){
+  sym = sym===undefined ? S.fstock : sym;
+  const s=S.data.series;
+  if (!sym) return {value:s.value, cost:s.cost, bench:s.benchmark, net:s.net_invested, pnl:s.total_pnl, sym:null};
+  const st=s.stocks[sym], n=s.dates.length;
+  const value=st.qty.map((q,i)=> q>0 ? (st.close[i]==null?null:q*st.close[i]) : 0);
+  const pnl=value.map((v,i)=> v==null?null : v-st.cost[i]+st.booked[i]);
+  // money in/out for this stock, and the same flows put into the index
+  const flow={}; for (const t of S.data.transactions) if (t.symbol===sym){
+    if (t.kind==='BUY') flow[t.date]=(flow[t.date]||0)+t.amount+t.charges;
+    else if (t.kind==='SELL') flow[t.date]=(flow[t.date]||0)-(t.amount-t.charges); }
+  const net=[], bench=[]; let cum=0, units=0;
+  for (let i=0;i<n;i++){ const f=flow[s.dates[i]]||0; cum+=f; net.push(cum);
+    const b=(s.bench_close||[])[i]; if (b){ units+=f/b; bench.push(units*b); } else bench.push(null); }
+  return {value, cost:st.cost, bench, net, pnl, sym};
+}
+function periodStats(sym){
+  const sc=scope(sym), [i0,i1]=idxRange();
   const base = i0>0 ? i0-1 : -1;
-  const tp=s.total_pnl, val=s.value, ni=s.net_invested;
-  const startP = base>=0 ? tp[base] : 0, endP = tp[i1];
-  const startV = base>=0 ? val[base] : 0;
-  const flow = ni[i1] - (base>=0?ni[base]:0);
+  const startP = base>=0 ? sc.pnl[base] : 0, endP = sc.pnl[i1];
+  const startV = base>=0 ? sc.value[base] : 0;
+  const flow = sc.net[i1] - (base>=0?sc.net[base]:0);
   const pnl = (endP!=null && startP!=null) ? endP-startP : null;
   const denom = (startV||0) + Math.max(flow,0)/2;
   const ret = pnl!=null && denom>0 ? pnl/denom*100 : null;
-  const tx = S.data.transactions.filter(t=>inRange(t.date));
+  const who = sc.sym;
+  const tx = S.data.transactions.filter(t=>inRange(t.date) && (!who || t.symbol===who));
   const div = tx.filter(t=>t.kind==='DIVIDEND').reduce((a,t)=>a+t.amount,0);
   const real = tx.filter(t=>t.kind==='SELL').reduce((a,t)=>a+(t.realised||0),0);
   return {pnl, ret, flow, div, real};
 }
+function current(){
+  if (!S.fstock){ const m=S.data.summary; return {label:'Portfolio', value:m.current_value, invested:m.invested, day:m.day_pnl, dayPct:m.day_pnl_pct, unreal:m.unrealised, unrealPct:m.unrealised_pct, total:m.total_pnl, xirr:m.xirr, realised:m.realised, div:m.dividends, charges:m.charges}; }
+  const h=S.data.holdings.find(x=>x.symbol===S.fstock);
+  return {label:h.symbol, value:h.value, invested:h.invested, day:h.day_pnl, dayPct:h.day_change_pct, unreal:h.unrealised, unrealPct:h.unrealised_pct, total:h.total_pnl, xirr:h.xirr, realised:h.realised, div:h.dividends, charges:h.charges};
+}
 function drawHero(){
-  const m=S.data.summary;
-  $('hero').innerHTML = `<div><div class="k">Current value</div><div class="big">${fmt(m.current_value)}</div>
-      <div class="chg ${cls(m.day_pnl)}">${sfmt(m.day_pnl)} (${pct(m.day_pnl_pct)}) today</div></div>
-    <div><div class="k">Invested</div><div style="font-size:20px;font-weight:650">${fmt(m.invested)}</div>
-      <div class="chg ${cls(m.unrealised)}" style="font-size:14px">${sfmt(m.unrealised)} (${pct(m.unrealised_pct)}) unrealised</div></div>`;
+  const c=current();
+  $('hero').innerHTML = `<div><div class="k">${S.fstock?esc(c.label)+' · current value':'Current value'}</div><div class="big">${fmt(c.value)}</div>
+      <div class="chg ${cls(c.day)}">${sfmt(c.day)} (${pct(c.dayPct)}) today</div></div>
+    <div><div class="k">Invested</div><div class="mid">${fmt(c.invested)}</div>
+      <div class="chg ${cls(c.unreal)}">${sfmt(c.unreal)} (${pct(c.unrealPct)}) unrealised</div></div>`;
 }
 function drawKpis(){
-  const m=S.data.summary, p=periodStats(), r=range(), isAll=r.label==='All time';
+  const c=current(), p=periodStats(), r=range(), isAll=r.label==='All time';
   $('kpis').innerHTML =
-    kpi('Total P&L', sfmt(m.total_pnl), 'incl. booked & dividends', cls(m.total_pnl)) +
-    kpi('XIRR', pct(m.xirr), 'annualised, after charges', cls(m.xirr)) +
-    kpi('Booked P&L', sfmt(m.realised+m.dividends), 'realised '+lakh(m.realised)+' · div '+lakh(m.dividends), cls(m.realised+m.dividends)) +
-    (isAll ? kpi('Charges paid', fmt(m.charges), 'STT, brokerage & fees')
-           : kpi('P&L · '+esc(r.label), sfmt(p.pnl), (p.ret!=null?pct(p.ret):'')+' · booked '+lakh(p.real+p.div), cls(p.pnl)));
+    kpi('Total P&L', sfmt(c.total), 'incl. booked & dividends', cls(c.total)) +
+    kpi('XIRR', pct(c.xirr), 'annualised, after charges', cls(c.xirr)) +
+    (isAll ? kpi('Booked P&L', sfmt(c.realised+c.div), 'realised '+lakh(c.realised)+' · div '+lakh(c.div), cls(c.realised+c.div))
+           : kpi('P&L · '+esc(r.label), sfmt(p.pnl), (p.ret!=null?pct(p.ret)+' · ':'')+'added '+lakh(p.flow,true), cls(p.pnl))) +
+    (isAll ? kpi('Charges paid', fmt(c.charges), 'STT, brokerage & fees')
+           : kpi('Booked · '+esc(r.label), sfmt(p.real+p.div), 'realised '+lakh(p.real)+' · div '+lakh(p.div), cls(p.real+p.div)));
 }
 
 // ---------- plotly theming
@@ -597,30 +672,31 @@ const L2 = (c,w=2.5)=>({color:c,width:w});
 // ---------- performance
 function drawPerf(){
   const d=S.data, s=d.series;
-  $('perfTitle').textContent = 'Performance · '+range().label;
+  $('perfTitle').textContent = 'Performance · '+(S.fstock?S.fstock+' · ':'')+range().label;
   if (S.preset==='1D' && !S.year){
     const it=d.intraday||{};
     if (!it.ts || !it.ts.length){ empty('perf','The hourly chart appears once live prices are loaded.'); $('perfNote').textContent=''; return; }
     const lastDay = it.ts[it.ts.length-1].slice(0,10);
     const idx = it.ts.map((t,i)=>t.slice(0,10)===lastDay?i:-1).filter(i=>i>=0);
+    if (S.fstock){ empty('perf','The hourly chart is for the whole portfolio. Clear the stock filter to see it.'); $('perfNote').textContent=''; return; }
     const X = idx.map(i=>it.ts[i]), Y = idx.map(i=>it.value[i]);
     plot('perf',[{x:X,y:Y,type:'scatter',mode:'lines+markers',name:'Portfolio value',line:L2(css('--s1')),marker:{size:7},hovertemplate:'%{x|%H:%M}  ₹%{y:,.0f}<extra></extra>'}],
       {showlegend:false, xaxis:{type:'date',tickformat:'%H:%M'}, yaxis:moneyAxis([Y])});
     $('perfNote').textContent = 'Hourly, latest session ('+new Date(lastDay).toLocaleDateString('en-IN',{day:'numeric',month:'short'})+').';
     return;
   }
-  const [i0,i1]=idxRange(); const X=s.dates.slice(i0,i1+1);
-  const V=s.value.slice(i0,i1+1), C=s.cost.slice(i0,i1+1), B=s.benchmark.slice(i0,i1+1), N=s.net_invested.slice(i0,i1+1), P=s.total_pnl.slice(i0,i1+1);
+  const [i0,i1]=idxRange(); const X=s.dates.slice(i0,i1+1), sc=scope();
+  const V=sc.value.slice(i0,i1+1), C=sc.cost.slice(i0,i1+1), B=sc.bench.slice(i0,i1+1), N=sc.net.slice(i0,i1+1), P=sc.pnl.slice(i0,i1+1);
   const hasV = V.filter(v=>v!=null).length>1;
   let tr=[], lay={};
   if (S.perfMode==='value'){
-    if (hasV) tr.push({x:X,y:V,name:'Your portfolio',type:'scatter',mode:'lines',line:L2(css('--s1'),2.75),hovertemplate:'₹%{y:,.0f}'});
+    if (hasV) tr.push({x:X,y:V,name:S.fstock?S.fstock+' value':'Your portfolio',type:'scatter',mode:'lines',line:L2(css('--s1'),2.75),hovertemplate:'₹%{y:,.0f}'});
     tr.push({x:X,y:C,name:'Invested',type:'scatter',mode:'lines',line:{color:css('--muted'),width:2,dash:'dot',shape:'hv'},hovertemplate:'₹%{y:,.0f}'});
     if (B.some(v=>v!=null)) tr.push({x:X,y:B,name:'Same money in '+d.benchmark.name,type:'scatter',mode:'lines',line:L2(css('--s2'),2),opacity:.9,hovertemplate:'₹%{y:,.0f}'});
     lay={yaxis:moneyAxis([V,C,B])};
   } else if (S.perfMode==='pnl'){
     if (!hasV){ empty('perf','P&L history needs live prices.'); return; }
-    const base=(i0>0 && s.total_pnl[i0-1]!=null)? s.total_pnl[i0-1] : 0;
+    const base=(i0>0 && sc.pnl[i0-1]!=null)? sc.pnl[i0-1] : 0;
     const Y=P.map(v=>v==null?null:v-base);
     const last=Y[Y.length-1]; const col = last>=0?css('--good'):css('--bad');
     tr.push({x:X,y:Y,name:'P&L',type:'scatter',mode:'lines',fill:'tozeroy',line:L2(col),fillcolor:`color-mix(in srgb, ${col} 14%, transparent)`,hovertemplate:'%{y:,.0f}'});
@@ -645,32 +721,44 @@ function drawPerf(){
 
 // ---------- allocation (small donut + readable list)
 function drawAlloc(){
-  const H=S.data.holdings.filter(h=>h.qty>0 && h.value);
-  if (!H.length){ $('allocList').innerHTML='<div class="muted">No open positions</div>'; return; }
+  const s=S.data.series, [,i1]=idxRange(), atEnd = i1===s.dates.length-1;
+  $('allocTitle').textContent = 'Allocation · '+(atEnd?'now':'on '+dshort(s.dates[i1]));
+  const H=S.data.holdings.map(h=>{ const st=s.stocks[h.symbol]; const v = atEnd ? h.value : (st.qty[i1]>0 && st.close[i1]!=null ? st.qty[i1]*st.close[i1] : 0); return {...h, v}; }).filter(h=>h.v>0);
+  if (!H.length){ empty('alloc',''); $('allocList').innerHTML='<div class="muted">No holdings on this date</div>'; return; }
   let items;
-  if (S.allocMode==='stock') items=H.map(h=>({label:h.symbol, value:h.value, color:colorOf(h.symbol)}));
-  else { const g={}; H.forEach(h=>g[h.sector]=(g[h.sector]||0)+h.value); items=Object.entries(g).map(([k,v],i)=>({label:k,value:v,color:css('--s'+(i+1))})); }
+  if (S.allocMode==='stock') items=H.map(h=>({key:h.symbol,label:h.symbol, value:h.v, color:colorOf(h.symbol)}));
+  else { const g={}; H.forEach(h=>g[h.sector]=(g[h.sector]||0)+h.v); items=Object.entries(g).map(([k,v],i)=>({key:'',label:k,value:v,color:css('--s'+(i+1))})); }
   items.sort((a,b)=>b.value-a.value);
   const tot=items.reduce((a,b)=>a+b.value,0);
+  const sel=S.allocMode==='stock'?S.fstock:'';
   plot('alloc',[{type:'pie',hole:.64,labels:items.map(i=>i.label),values:items.map(i=>i.value),sort:false,direction:'clockwise',
-      marker:{colors:items.map(i=>i.color),line:{color:css('--card'),width:2}},textinfo:'none',hovertemplate:'%{label}<br>₹%{value:,.0f} · %{percent}<extra></extra>'}],
-    {showlegend:false,margin:{l:0,r:0,t:0,b:0},hovermode:'closest',annotations:[{text:lakh(tot),showarrow:false,font:{size:mobile()?13:15,color:css('--ink')}}]});
-  $('allocList').innerHTML = items.map(i=>`<div class="brow" style="grid-template-columns:1fr auto">
+      pull:items.map(i=>sel&&i.key===sel?0.06:0),
+      marker:{colors:items.map(i=>sel&&i.key!==sel?`color-mix(in srgb, ${i.color} 35%, transparent)`:i.color),line:{color:css('--card'),width:2}},textinfo:'none',hovertemplate:'%{label}<br>₹%{value:,.0f} · %{percent}<extra></extra>'}],
+    {showlegend:false,margin:{l:4,r:4,t:4,b:4},hovermode:'closest',annotations:[{text:lakh(sel?(items.find(i=>i.key===sel)||{value:tot}).value:tot),showarrow:false,font:{size:mobile()?13:15,color:css('--ink')}}]});
+  onClickOnce('alloc', ev => { const lab=ev.points[0].label; if (S.allocMode==='stock') setFilter({fstock: S.fstock===lab?'':lab}); });
+  $('allocList').innerHTML = items.map(i=>`<div class="brow ${sel?(i.key===sel?'sel':'dim'):''}" data-s="${esc(i.key)}">
       <div class="name"><span class="sw" style="background:${i.color}"></span>${esc(i.label)}</div>
       <div class="val">${(i.value/tot*100).toFixed(1)}%<span class="sub2">${lakh(i.value)}</span></div></div>`).join('');
+  $('allocList').onclick = e => { const r=e.target.closest('[data-s]'); if (r && r.dataset.s) setFilter({fstock: S.fstock===r.dataset.s?'':r.dataset.s}); };
 }
+function onClickOnce(id, fn){ const e=$(id); e._click=fn; if (!e._bound && e.on){ e.on('plotly_click', ev=>e._click&&e._click(ev)); e._bound=true; } }
 
 // ---------- contribution (diverging bar list)
 function drawContrib(){
-  const H=S.data.holdings.slice().sort((a,b)=>b.total_pnl-a.total_pnl);
-  const mx=Math.max(...H.map(h=>Math.abs(h.total_pnl)),1);
-  $('contrib').innerHTML = H.map(h=>{
-    const w=Math.abs(h.total_pnl)/mx*50, left = h.total_pnl>=0 ? 50 : 50-w;
-    return `<div class="brow" title="Unrealised ${sfmt(h.unrealised)} · Realised ${sfmt(h.realised)} · Dividends ${fmt(h.dividends)}">
+  const r=range(), isAll=r.label==='All time';
+  $('contribTitle').textContent = isAll ? 'Total P&L by stock' : 'P&L by stock · '+r.label;
+  const rows=S.data.holdings.map(h=>{ const p = isAll ? {pnl:h.total_pnl, ret:h.invested?h.total_pnl/h.invested*100:null} : periodStats(h.symbol); return {h, pnl:p.pnl, ret:p.ret}; })
+    .sort((a,b)=>(b.pnl??-1e18)-(a.pnl??-1e18));
+  const mx=Math.max(...rows.map(x=>Math.abs(x.pnl||0)),1);
+  $('contrib').innerHTML = rows.map(({h,pnl,ret})=>{
+    const v=pnl||0, w=Math.abs(v)/mx*50, left = v>=0 ? 50 : 50-w;
+    const st = S.fstock ? (S.fstock===h.symbol?'sel':'dim') : '';
+    return `<div class="brow ${st}" data-s="${esc(h.symbol)}" title="${isAll?`Unrealised ${sfmt(h.unrealised)} · Realised ${sfmt(h.realised)} · Dividends ${fmt(h.dividends)}`:''}">
       <div class="name"><span class="sw" style="background:${colorOf(h.symbol)}"></span>${esc(h.symbol)}</div>
-      <div class="track div"><div class="mid"></div><div class="fill" style="left:${left}%;width:${Math.max(w,0.8)}%;background:${h.total_pnl>=0?css('--good'):css('--bad')}"></div></div>
-      <div class="val ${cls(h.total_pnl)}">${lakh(h.total_pnl,true)}<span class="sub2">${pct(h.invested?h.total_pnl/h.invested*100:null)}</span></div></div>`;
-  }).join('') + `<div class="note2">Total P&L = unrealised + realised + dividends. Bars to the right are gains, to the left losses.</div>`;
+      <div class="track div"><div class="mid"></div><div class="fill" style="left:${left}%;width:${Math.max(w,0.8)}%;background:${v>=0?css('--good'):css('--bad')}"></div></div>
+      <div class="val ${cls(pnl)}">${lakh(pnl,true)}<span class="sub2">${pct(ret)}</span></div></div>`;
+  }).join('') + `<div class="note2">${isAll?'Total P&L = unrealised + realised + dividends.':'Change in total P&L over '+esc(r.label.toLowerCase())+'.'} Right = gain, left = loss.</div>`;
+  $('contrib').onclick = e => { const x=e.target.closest('[data-s]'); if (x) setFilter({fstock: S.fstock===x.dataset.s?'':x.dataset.s}); };
 }
 
 // ---------- cash flow
@@ -710,14 +798,17 @@ function drawCF(id){
   const stackTop=B.map((b,i)=>sell[i]+div[i]);
   plot(id,tr,{barmode:'relative',xaxis:{type:'category',tickangle:0,nticks:undefined,automargin:true},yaxis:moneyAxis([buy,stackTop],{zero:true}),hovermode:'x unified'});
   requestAnimationFrame(()=>{ if (wrap.scrollWidth>wrap.clientWidth) wrap.scrollLeft = wrap.scrollWidth; });
-  if (id==='cf1'){ const t=B.reduce((a,[,b])=>({buy:a.buy+b.buy,out:a.out+b.sell+b.div}),{buy:0,out:0}); $('cf1note').innerHTML=`Bought <b>${lakh(t.buy)}</b> · got back <b>${lakh(t.out)}</b> (sold + dividends) · ${range().label}${B.length*per+70>wrap.clientWidth?' · swipe for earlier months':''}`; }
+  onClickOnce(id, ev => { const k=B[ev.points[0].pointIndex]?.[0]; if(!k) return;
+    if (S.gran==='Y') setFilter({year:k, month:'', preset:'ALL'}); else setFilter({year:k.slice(0,4), month:String(+k.slice(5)), preset:'ALL'}); });
+  if (id==='cf1') $('cf1Title').textContent='Cash flow · '+(S.fstock?S.fstock+' · ':'')+range().label;
+  if (id==='cf1'){ const t=B.reduce((a,[,b])=>({buy:a.buy+b.buy,out:a.out+b.sell+b.div}),{buy:0,out:0}); $('cf1note').innerHTML=`Bought <b>${lakh(t.buy)}</b> · got back <b>${lakh(t.out)}</b> (sold + dividends). Tap a bar to filter to that ${S.gran==='Y'?'year':'month'}${B.length*per+70>wrap.clientWidth?'; swipe for earlier months':''}.`; }
 }
 function drawCashflowView(){
   drawCF('cf2');
   const B=cfBuckets(); const t=B.reduce((a,[,b])=>({buy:a.buy+b.buy,sell:a.sell+b.sell,div:a.div+b.div,chg:a.chg+b.chg,real:a.real+b.real}),{buy:0,sell:0,div:0,chg:0,real:0});
   $('cfKpis').innerHTML = kpi('Bought',fmt(t.buy),'incl. charges') + kpi('Sold',fmt(t.sell),'after charges') + kpi('Dividends',fmt(t.div)) +
     kpi('Net money added',sfmt(t.buy-t.sell-t.div),'bought − sold − dividends') + kpi('Realised on sells',sfmt(t.real),'',cls(t.real)) + kpi('Charges',fmt(t.chg),'STT, brokerage, fees');
-  const s=S.data.series,[i0,i1]=idxRange(); const Y=s.net_invested.slice(i0,i1+1);
+  const s=S.data.series,[i0,i1]=idxRange(); const Y=scope().net.slice(i0,i1+1);
   plot('netinv',[{x:s.dates.slice(i0,i1+1),y:Y,type:'scatter',mode:'lines',line:{color:css('--s1'),width:2.5,shape:'hv'},fill:'tozeroy',fillcolor:`color-mix(in srgb, ${css('--s1')} 10%, transparent)`,name:'Net invested',hovertemplate:'₹%{y:,.0f}<extra></extra>'}],{showlegend:false,yaxis:moneyAxis([Y],{zero:true})});
   $('cfTable').innerHTML = `<thead><tr><th class="l">${S.gran==='Y'?'Year':'Month'}</th><th>Bought</th><th>Sold</th><th>Dividends</th><th class="hide-m">Charges</th><th>Net added</th><th>Realised</th></tr></thead><tbody>`+
     B.slice().reverse().filter(([,b])=>b.buy||b.sell||b.div).map(([k,b])=>`<tr><td>${cfLabel(k)}</td><td>${fmt(b.buy)}</td><td>${fmt(b.sell)}</td><td>${fmt(b.div)}</td><td class="hide-m">${fmt(b.chg,1)}</td><td>${sfmt(b.buy-b.sell-b.div)}</td><td class="${cls(b.real)}">${sfmt(b.real)}</td></tr>`).join('')+
@@ -730,7 +821,7 @@ const HCOLS=[
   ['invested','Invested'],['value','Current'],['unrealised','Unrealised'],['unrealised_pct','Unreal. %'],['booked','Booked'],['total_pnl','Total P&L'],['xirr','XIRR'],['weight','Weight']];
 function holdingsRows(sortState){
   const tot=S.data.summary.current_value||1;
-  const H=S.data.holdings.map(h=>({...h, booked:h.realised+h.dividends, weight:(h.value||0)/tot*100}));
+  const H=S.data.holdings.filter(h=>!S.fstock||h.symbol===S.fstock).map(h=>({...h, booked:h.realised+h.dividends, weight:(h.value||0)/tot*100}));
   const {key,dir}=sortState;
   H.sort((a,b)=> (typeof a[key]==='string'? a[key].localeCompare(b[key]) : ((a[key]??-1e18)-(b[key]??-1e18)))*dir);
   return H;
@@ -744,7 +835,7 @@ function drawHoldings(id, sortState){
         <div class="r2"><span>${num(h.qty)} × ₹${num(h.avg_price,2)}</span><span>LTP ₹${num(h.ltp,2)}${star(h)} <span class="${cls(h.day_change_pct)}">${pct(h.day_change_pct)}</span></span></div>
         <div class="r3"><span>Unrealised <b class="${cls(h.unrealised)}">${lakh(h.unrealised,true)}</b> <span class="${cls(h.unrealised_pct)}">(${pct(h.unrealised_pct)})</span></span><span>Total <b class="${cls(h.total_pnl)}">${lakh(h.total_pnl,true)}</b></span></div>
       </div>`).join('')+`</div>
-      <div class="note2" style="margin-top:10px">Total: ${fmt(m.current_value)} · unrealised <span class="${cls(m.unrealised)}">${sfmt(m.unrealised)}</span> · today <span class="${cls(m.day_pnl)}">${sfmt(m.day_pnl)}</span></div>`;
+      <div class="note2 ${S.fstock?'hidden':''}" style="margin-top:10px">Total: ${fmt(m.current_value)} · unrealised <span class="${cls(m.unrealised)}">${sfmt(m.unrealised)}</span> · today <span class="${cls(m.day_pnl)}">${sfmt(m.day_pnl)}</span></div>`;
     box.onclick = e => { const c=e.target.closest('[data-s]'); if (c) location.hash='#stock-'+c.dataset.s.toLowerCase(); };
     return;
   }
@@ -758,7 +849,7 @@ function drawHoldings(id, sortState){
       <td class="${cls(h.unrealised)}">${sfmt(h.unrealised)}</td><td class="${cls(h.unrealised_pct)}">${pct(h.unrealised_pct)}</td>
       <td class="${cls(h.booked)}">${sfmt(h.booked)}</td><td class="${cls(h.total_pnl)}"><b>${sfmt(h.total_pnl)}</b></td>
       <td class="${cls(h.xirr)}">${pct(h.xirr)}</td><td>${h.weight.toFixed(1)}%</td></tr>`).join('')+
-    `<tr style="font-weight:700"><td>Total</td><td></td><td></td><td></td><td class="${cls(m.day_pnl_pct)}">${pct(m.day_pnl_pct)}</td><td class="${cls(m.day_pnl)}">${sfmt(m.day_pnl)}</td><td>${fmt(m.invested)}</td><td>${fmt(m.current_value)}</td><td class="${cls(m.unrealised)}">${sfmt(m.unrealised)}</td><td class="${cls(m.unrealised_pct)}">${pct(m.unrealised_pct)}</td><td class="${cls(m.realised+m.dividends)}">${sfmt(m.realised+m.dividends)}</td><td class="${cls(m.total_pnl)}">${sfmt(m.total_pnl)}</td><td class="${cls(m.xirr)}">${pct(m.xirr)}</td><td>100%</td></tr></tbody></table></div>`;
+    (S.fstock?'':`<tr style="font-weight:700"><td>Total</td><td></td><td></td><td></td><td class="${cls(m.day_pnl_pct)}">${pct(m.day_pnl_pct)}</td><td class="${cls(m.day_pnl)}">${sfmt(m.day_pnl)}</td><td>${fmt(m.invested)}</td><td>${fmt(m.current_value)}</td><td class="${cls(m.unrealised)}">${sfmt(m.unrealised)}</td><td class="${cls(m.unrealised_pct)}">${pct(m.unrealised_pct)}</td><td class="${cls(m.realised+m.dividends)}">${sfmt(m.realised+m.dividends)}</td><td class="${cls(m.total_pnl)}">${sfmt(m.total_pnl)}</td><td class="${cls(m.xirr)}">${pct(m.xirr)}</td><td>100%</td></tr>`)+'</tbody></table></div>';
   box.onclick = e => {
     const th=e.target.closest('th'); if (th){ const k=th.dataset.k; sortState.dir = sortState.key===k ? -sortState.dir : -1; sortState.key=k; drawHoldings(id,sortState); return; }
     const tr=e.target.closest('tr[data-s]'); if (tr) location.hash='#stock-'+tr.dataset.s.toLowerCase();
@@ -945,9 +1036,7 @@ if ('serviceWorker' in navigator && !window.__EMBED__ && location.protocol==='ht
 // ---------- render
 function render(){
   if (!S.data) return;
-  header();
-  segOn('presets','p', S.year?'':S.preset);
-  $('filters').classList.toggle('hidden', S.view==='holdings');
+  header(); syncControls(); drawActive();
   if (S.view==='overview'){ drawHero(); drawKpis(); drawPerf(); drawContrib(); drawAlloc(); drawCF('cf1'); drawHoldings('hold1',S.sort); }
   else if (S.view==='holdings'){ drawHoldings('hold2',S.sort2); drawBooked(); }
   else if (S.view==='cashflow') drawCashflowView();

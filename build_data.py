@@ -386,7 +386,7 @@ def build(offline=False):
         return s
 
     series = {"dates": [d.isoformat() for d in axis], "value": [], "cost": [], "net_invested": [],
-              "realised": [], "dividends": [], "total_pnl": [], "benchmark": [], "stocks": {}}
+              "realised": [], "dividends": [], "total_pnl": [], "benchmark": [], "bench_close": [], "stocks": {}}
     pxs = {s: px_series(tick[s]) for s in syms}
     bench = px_series(bench_tk)
 
@@ -445,8 +445,10 @@ def build(offline=False):
             bench_units += flows_by_day.get(d, 0.0) / b
             bench_last = b
             series["benchmark"].append(round(bench_units * b, 2))
+            series["bench_close"].append(round(b, 2))
         else:
             series["benchmark"].append(None)
+            series["bench_close"].append(None)
 
     # ---- holdings
     holdings = []
