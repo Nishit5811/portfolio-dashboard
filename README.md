@@ -47,7 +47,7 @@ It fetches Yahoo prices at start-up and then every hour (`--every 30` for every 
 - Overlapping rows across exports are counted once.
 - A trade you added by hand is skipped automatically once an export contains it (same stock, date, side and quantity), so nothing is double-counted.
 
-**A new stock** needs a Yahoo ticker: NSE → `SYMBOL.NS` (e.g. `TATAPOWER.NS`), BSE-only → `BSECODE.BO` (e.g. `530845.BO`). The Add-trade form stores it, or add it to `config.json` under `symbols`.
+**A new stock** needs a Yahoo ticker: NSE → `SYMBOL.NS` (e.g. `TATAPOWER.NS`), BSE-only → `BSECODE.BO` (e.g. `SUNSHIEL.BO`). The Add-trade form stores it, or add it to `config.json` under `symbols`.
 
 ## Files
 

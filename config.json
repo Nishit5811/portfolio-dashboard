@@ -27,12 +27,11 @@
     },
     "SUNSHIEL": {
       "name": "Sunshield Chemicals",
-      "ticker": "530845.BO",
+      "ticker": "SUNSHIEL.BO",
       "sector": "Specialty Chemicals",
       "alt_tickers": [
-        "SUNSHIEL.BO",
-        "SUNSHIELD.BO",
-        "SUNSHIEL.NS"
+        "530845.BO",
+        "SUNSHIELD.BO"
       ]
     },
     "GRAUWEIL": {
