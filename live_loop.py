@@ -16,6 +16,8 @@ import shutil
 import subprocess
 import sys
 import time
+import json
+import urllib.request
 
 import importlib
 
@@ -55,6 +57,24 @@ def publish(path):
     sh("git", "push", "-q", "-f", remote, f"HEAD:{BRANCH}", cwd=PUB)
 
 
+def redeploy_site():
+    """Ask GitHub to rebuild and redeploy the Pages site (same address the app opens),
+    so prices still arrive on networks that block raw.githubusercontent.com."""
+    token, repo = os.environ.get("GH_TOKEN"), os.environ.get("GITHUB_REPOSITORY")
+    if not token or not repo:
+        return False
+    req = urllib.request.Request(
+        f"https://api.github.com/repos/{repo}/actions/workflows/refresh.yml/dispatches",
+        data=json.dumps({"ref": "main"}).encode(), method="POST",
+        headers={"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json"})
+    try:
+        with urllib.request.urlopen(req, timeout=20) as r:
+            return r.status == 204
+    except Exception as e:
+        print("  site redeploy request failed:", e)
+        return False
+
+
 def pull_main():
     """Pick up trades added while the loop is running."""
     r = sh("git", "pull", "-q", "--ff-only", "origin", "main", check=False)
@@ -66,9 +86,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--once", action="store_true")
     ap.add_argument("--every", type=int, default=3, help="minutes between refreshes")
+    ap.add_argument("--site-every", type=int, default=6, help="minutes between full site redeploys")
     a = ap.parse_args()
     start = time.time()
     n = 0
+    last_site = 0.0
     while True:
         now = dt.datetime.now(IST)
         t0 = time.time()
@@ -79,6 +101,9 @@ def main():
             if out.get("price_source") == "yahoo":
                 publish(os.path.join(HERE, "site", "data.json"))
                 n += 1
+                if time.time() - last_site >= a.site_every * 60 - 30:
+                    if redeploy_site():
+                        last_site = time.time()
                 print(f"{now:%H:%M:%S} IST  published #{n}  value=₹{out['summary']['current_value']:,.0f}  "
                       f"({time.time() - t0:.0f}s)", flush=True)
             else:

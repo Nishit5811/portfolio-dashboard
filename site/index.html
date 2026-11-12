@@ -464,25 +464,39 @@ function moneyAxis(values, opts={}){
 }
 
 // ---------- data load
-// Prices: the live-data branch (updated every 3 min in market hours) or the site's own copy,
-// whichever is newer.
-function liveUrl(){
-  const repo = window.__REPO__ || (S.data && S.data.github_repo);
-  return repo ? `https://raw.githubusercontent.com/${repo}/live-data/data.json` : null;
+// Prices come from up to three places; the newest copy wins:
+//  1. the site itself (redeployed every ~6 min in market hours)
+//  2. raw.githubusercontent.com live-data branch (every 3 min; blocked on some networks)
+//  3. GitHub's API for the same file (backup when 2 is blocked)
+const SRC_FAIL = {};
+function repoName(){ return window.__REPO__ || (S.data && S.data.github_repo) || ''; }
+async function getJson(url, opts={}){ const r = await fetch(url, {cache:'no-store', ...opts}); if (!r.ok) throw new Error(r.status); return r.json(); }
+function sources(bust){
+  const repo=repoName(), list=[['site', ()=>getJson('data.json?t='+bust)]];
+  if (repo){
+    if (!SRC_FAIL.raw) list.push(['raw', ()=>getJson(`https://raw.githubusercontent.com/${repo}/live-data/data.json?t=${bust}`)]);
+    if (SRC_FAIL.raw || SRC_FAIL.rawTried) list.push(['api', ()=>getJson(`https://api.github.com/repos/${repo}/contents/data.json?ref=live-data&t=${bust}`, {headers:{Accept:'application/vnd.github.raw'}})]);
+  }
+  return list;
 }
-async function getJson(url){ const r = await fetch(url, {cache:'no-store'}); if (!r.ok) throw new Error(r.status); return r.json(); }
+async function fetchNewest(){
+  const bust = Math.floor(Date.now()/20000);
+  const list = sources(bust);
+  const res = await Promise.allSettled(list.map(([,f])=>f()));
+  const got=[];
+  res.forEach((r,k)=>{ const name=list[k][0];
+    if (r.status==='fulfilled' && r.value && r.value.generated_at) { got.push(r.value); if (name==='raw') SRC_FAIL.raw=false; }
+    else if (name==='raw') { SRC_FAIL.raw=true; } });
+  SRC_FAIL.rawTried = true;
+  return got.length ? got.reduce((a,b)=> (b.generated_at > a.generated_at ? b : a)) : null;
+}
 async function load(initial){
   let d = null;
   if (window.__EMBED__) d = window.__EMBED__;
   else {
-    const bust = Math.floor(Date.now()/30000);
-    const tries = [getJson('data.json?t='+bust)];
-    const lu = liveUrl(); if (lu) tries.push(getJson(lu+'?t='+bust));
-    const got = (await Promise.allSettled(tries)).filter(x=>x.status==='fulfilled').map(x=>x.value);
-    if (!got.length){ if(initial || !S.data){ $('asof').textContent='Could not load data — check your connection.'; } return; }
-    d = got.reduce((a,b)=> (b.generated_at > a.generated_at ? b : a));
-    // first load only knows the repo from the site copy: fetch the live copy right after
-    if (initial && !lu && d.github_repo){ window.__REPO__=d.github_repo; try{ const l=await getJson(liveUrl()+'?t='+bust); if (l.generated_at>d.generated_at) d=l; }catch(e){} }
+    d = await fetchNewest();
+    if (d && !repoName() && d.github_repo){ window.__REPO__=d.github_repo; const l=await fetchNewest(); if (l && l.generated_at>d.generated_at) d=l; }
+    if (!d){ if(initial || !S.data){ $('asof').textContent='Could not load data — check your connection.'; } return; }
   }
   const changed = !S.data || S.data.generated_at !== d.generated_at;
   S.data = d; S.loadedAt = Date.now();
@@ -1062,7 +1076,7 @@ function render(){
 
 load(true);
 if (!window.__EMBED__){
-  (function poll(){ setTimeout(async ()=>{ if (!document.hidden) await load(false); poll(); }, marketOpen()?60000:5*60000); })();
+  (function poll(){ setTimeout(async ()=>{ if (!document.hidden) await load(false); poll(); }, marketOpen()?(SRC_FAIL.raw?90000:60000):5*60000); })();
   document.addEventListener('visibilitychange', ()=>{ if (!document.hidden && Date.now()-S.loadedAt>30000) load(false); });
 }
 })();

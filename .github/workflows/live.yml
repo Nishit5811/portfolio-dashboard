@@ -15,9 +15,10 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
-  group: live-prices
+  group: live-prices-v2
   cancel-in-progress: false
 
 jobs:
@@ -31,4 +32,6 @@ jobs:
           python-version: "3.12"
           cache: pip
       - run: pip install -r requirements.txt
-      - run: python live_loop.py --every 3
+      - run: python live_loop.py --every 3 --site-every 6
+        env:
+          GH_TOKEN: ${{ github.token }}

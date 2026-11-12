@@ -1,6 +1,6 @@
 // Offline-capable app shell. Pages and data are network-first so the app always shows
 // the latest prices when online, and the last saved copy when offline.
-const CACHE = 'portfolio-v2';
+const CACHE = 'portfolio-v3';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
