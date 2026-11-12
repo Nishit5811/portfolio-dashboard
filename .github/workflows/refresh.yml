@@ -2,11 +2,10 @@ name: Refresh portfolio dashboard
 
 on:
   schedule:
-    # Every 15 minutes through the Indian trading day (08:30–16:15 IST = 03:00–10:45 UTC), Mon–Fri,
-    # plus one run a day at weekends. Times are UTC. GitHub may start scheduled runs a few minutes late.
-    - cron: "*/15 3-10 * * 1-5"
-    - cron: "7 13,16 * * 1-5"
-    - cron: "33 6 * * 0,6"
+    # Live prices during the session come from live.yml (every 3 min, via the live-data branch).
+    # This rebuilds the site itself: after the close, in the evening, and once a day at weekends.
+    - cron: "50 10 * * 1-5"
+    - cron: "7 16 * * *"
   push:
     paths: ["inputs/**", "config.json", "build_data.py", "site/**"]
   workflow_dispatch: {}

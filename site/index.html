@@ -426,7 +426,6 @@ pre.code{background:var(--page);border:1px solid var(--ring);border-radius:8px;p
 const S = {data:null, view:'overview', stock:null, preset:'ALL', year:'', month:'', fstock:'',
            perfMode:'value', allocMode:'stock', gran:'M', sort:{key:'value',dir:-1}, sort2:{key:'value',dir:-1}, loadedAt:0};
 const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const POLL_MS = 2*60*1000;
 
 // ---------- utils
 const $ = id => document.getElementById(id);
@@ -465,12 +464,25 @@ function moneyAxis(values, opts={}){
 }
 
 // ---------- data load
+// Prices: the live-data branch (updated every 3 min in market hours) or the site's own copy,
+// whichever is newer.
+function liveUrl(){
+  const repo = window.__REPO__ || (S.data && S.data.github_repo);
+  return repo ? `https://raw.githubusercontent.com/${repo}/live-data/data.json` : null;
+}
+async function getJson(url){ const r = await fetch(url, {cache:'no-store'}); if (!r.ok) throw new Error(r.status); return r.json(); }
 async function load(initial){
   let d = null;
   if (window.__EMBED__) d = window.__EMBED__;
   else {
-    try { const r = await fetch('data.json?t='+Date.now(), {cache:'no-store'}); if(!r.ok) throw 0; d = await r.json(); }
-    catch(e){ if(initial || !S.data){ $('asof').textContent='Could not load data — check your connection.'; } return; }
+    const bust = Math.floor(Date.now()/30000);
+    const tries = [getJson('data.json?t='+bust)];
+    const lu = liveUrl(); if (lu) tries.push(getJson(lu+'?t='+bust));
+    const got = (await Promise.allSettled(tries)).filter(x=>x.status==='fulfilled').map(x=>x.value);
+    if (!got.length){ if(initial || !S.data){ $('asof').textContent='Could not load data — check your connection.'; } return; }
+    d = got.reduce((a,b)=> (b.generated_at > a.generated_at ? b : a));
+    // first load only knows the repo from the site copy: fetch the live copy right after
+    if (initial && !lu && d.github_repo){ window.__REPO__=d.github_repo; try{ const l=await getJson(liveUrl()+'?t='+bust); if (l.generated_at>d.generated_at) d=l; }catch(e){} }
   }
   const changed = !S.data || S.data.generated_at !== d.generated_at;
   S.data = d; S.loadedAt = Date.now();
@@ -585,7 +597,8 @@ function header(){
   const open = marketOpen();
   $('mkt').innerHTML = `<span class="dot ${open?'open':''}"></span><span>Market ${open?'open':'closed'}</span>`;
   $('ago').textContent = 'Updated '+agoText(d.generated_at);
-  $('src').textContent = d.price_source==='yahoo' ? (open?'Live · every 15 min':'Yahoo Finance') : 'Broker snapshot';
+  const stale = open && (Date.now()-new Date(d.generated_at).getTime()) > 15*60000;
+  $('src').textContent = d.price_source!=='yahoo' ? 'Broker snapshot' : open ? (stale?'Live feed delayed':'Live · every 3 min') : 'Yahoo Finance';
   const b=$('banner');
   if (d.price_source!=='yahoo'){ b.classList.remove('hidden'); b.innerHTML='<b>Preview.</b> Prices from your broker export; history and NIFTY comparison fill in once live Yahoo data loads.'; }
   else b.classList.add('hidden');
@@ -676,14 +689,14 @@ function drawPerf(){
   $('perfTitle').textContent = 'Performance · '+(S.fstock?S.fstock+' · ':'')+range().label;
   if (S.preset==='1D' && !S.year){
     const it=d.intraday||{};
-    if (!it.ts || !it.ts.length){ empty('perf','The hourly chart appears once live prices are loaded.'); $('perfNote').textContent=''; return; }
+    if (!it.ts || !it.ts.length){ empty('perf','The intraday chart appears once live prices are loaded.'); $('perfNote').textContent=''; return; }
     const lastDay = it.ts[it.ts.length-1].slice(0,10);
     const idx = it.ts.map((t,i)=>t.slice(0,10)===lastDay?i:-1).filter(i=>i>=0);
-    if (S.fstock){ empty('perf','The hourly chart is for the whole portfolio. Clear the stock filter to see it.'); $('perfNote').textContent=''; return; }
+    if (S.fstock){ empty('perf','The intraday chart is for the whole portfolio. Clear the stock filter to see it.'); $('perfNote').textContent=''; return; }
     const X = idx.map(i=>it.ts[i]), Y = idx.map(i=>it.value[i]);
-    plot('perf',[{x:X,y:Y,type:'scatter',mode:'lines+markers',name:'Portfolio value',line:L2(css('--s1')),marker:{size:7},hovertemplate:'%{x|%H:%M}  ₹%{y:,.0f}<extra></extra>'}],
+    plot('perf',[{x:X,y:Y,type:'scatter',mode:'lines',name:'Portfolio value',line:L2(css('--s1')),fill:'tozeroy',fillcolor:'rgba(0,0,0,0)',hovertemplate:'%{x|%H:%M}  ₹%{y:,.0f}<extra></extra>'}],
       {showlegend:false, xaxis:{type:'date',tickformat:'%H:%M'}, yaxis:moneyAxis([Y])});
-    $('perfNote').textContent = 'Hourly, latest session ('+new Date(lastDay).toLocaleDateString('en-IN',{day:'numeric',month:'short'})+').';
+    $('perfNote').textContent = 'Every 5 minutes, latest session ('+new Date(lastDay).toLocaleDateString('en-IN',{day:'numeric',month:'short'})+').';
     return;
   }
   let [i0,i1]=idxRange(); const sc=scope();
@@ -1049,7 +1062,7 @@ function render(){
 
 load(true);
 if (!window.__EMBED__){
-  setInterval(()=>{ if (!document.hidden) load(false); }, POLL_MS);
+  (function poll(){ setTimeout(async ()=>{ if (!document.hidden) await load(false); poll(); }, marketOpen()?60000:5*60000); })();
   document.addEventListener('visibilitychange', ()=>{ if (!document.hidden && Date.now()-S.loadedAt>30000) load(false); });
 }
 })();

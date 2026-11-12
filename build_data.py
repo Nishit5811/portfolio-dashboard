@@ -224,7 +224,7 @@ def fetch_yahoo(tickers, start):
     import yfinance as yf
     daily = yf.download(tickers, start=start - dt.timedelta(days=7), interval="1d",
                         auto_adjust=False, progress=False, group_by="ticker", threads=True)
-    intraday = yf.download(tickers, period="5d", interval="60m",
+    intraday = yf.download(tickers, period="5d", interval="5m",
                            auto_adjust=False, progress=False, group_by="ticker", threads=True)
 
     def closes(frame, tk):
@@ -520,7 +520,7 @@ def build(offline=False):
     summary["total_pnl_after_charges"] = summary["total_pnl"] - summary["charges"]
     summary["day_pnl_pct"] = summary["day_pnl"] / summary["prev_value"] * 100 if summary["prev_value"] else None
 
-    # ---- intraday portfolio value (current holdings, hourly bars, last 5 sessions)
+    # ---- intraday portfolio value (current holdings, 5-minute bars, last 5 sessions)
     intraday = {"ts": [], "value": []}
     if source == "yahoo":
         frames = {s: intra_px[tick[s]] for s in syms if len(intra_px.get(tick[s], []))}
