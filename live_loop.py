@@ -17,6 +17,8 @@ import subprocess
 import sys
 import time
 
+import importlib
+
 import build_data
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -72,6 +74,7 @@ def main():
         t0 = time.time()
         try:
             pull_main()
+            importlib.reload(build_data)      # pick up code changes pushed mid-session
             out = build_data.build(offline=False)
             if out.get("price_source") == "yahoo":
                 publish(os.path.join(HERE, "site", "data.json"))

@@ -450,6 +450,14 @@ def build(offline=False):
             series["benchmark"].append(None)
             series["bench_close"].append(None)
 
+    # a stock that hasn't traded yet in the current session has no move "today"
+    if source == "yahoo":
+        session = (quotes.get(bench_tk) or {}).get("last_day")
+        for s_ in syms:
+            q = quotes.get(tick[s_])
+            if session and q and q.get("last_day") and q["last_day"] < session:
+                q["prev_close"] = q["ltp"]
+                q["no_trade_today"] = True
     # ---- holdings
     holdings = []
     for s in syms:
