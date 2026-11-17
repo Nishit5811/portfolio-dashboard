@@ -232,6 +232,7 @@ pre.code{background:var(--page);border:1px solid var(--ring);border-radius:8px;p
     <span class="pill" id="mkt"><span class="dot"></span><span>Market</span></span>
     <span class="pill" id="ago">—</span>
     <span class="pill" id="src">—</span>
+    <a class="pill hidden" id="kick" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-color:var(--accent)" title="Opens GitHub: tap “Run workflow”, then “Run workflow” again">▶ Start live updates</a>
   </div>
 
   <div id="banner" class="banner hidden"></div>
@@ -613,6 +614,8 @@ function header(){
   $('ago').textContent = 'Updated '+agoText(d.generated_at);
   const stale = open && (Date.now()-new Date(d.generated_at).getTime()) > 15*60000;
   $('src').textContent = d.price_source!=='yahoo' ? 'Broker snapshot' : open ? (stale?'Live feed delayed':'Live · every 3 min') : 'Yahoo Finance';
+  const kick=$('kick'), repo=d.github_repo;
+  if (kick){ kick.classList.toggle('hidden', !(stale && repo)); if (repo) kick.href=`https://github.com/${repo}/actions/workflows/live.yml`; }
   const b=$('banner');
   if (d.price_source!=='yahoo'){ b.classList.remove('hidden'); b.innerHTML='<b>Preview.</b> Prices from your broker export; history and NIFTY comparison fill in once live Yahoo data loads.'; }
   else b.classList.add('hidden');

@@ -8,6 +8,7 @@ A personal InvestRight / Moneycontrol-style dashboard for account 6803948.
 - **Transactions**: full ledger, grouped fills, search, copy as CSV
 - **Detailed view per stock** (click any holding): price with your average cost and every buy/sell marked, position value vs invested, quantity history, trades & dividends
 - **＋ Add trade / ⇪ Upload export**: record new buys, sells and dividends, or drop in a fresh broker export
+- **If the live feed is late:** GitHub sometimes starts scheduled jobs hours late. The app then shows **▶ Start live updates**; tap it, then **Run workflow** on GitHub, and prices resume within about 3 minutes.
 - **Live prices:** during market hours (Mon–Fri 09:05–15:45 IST) a job refreshes Yahoo prices every 3 minutes and publishes them to the `live-data` branch; the app checks every minute. Outside market hours the site rebuilds after the close and once a day.
 
 P&L follows your broker's method: same-day buys and sells offset first, the rest is FIFO. Realised P&L excludes charges, which are shown separately. XIRR is after charges.

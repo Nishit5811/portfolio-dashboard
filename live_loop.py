@@ -57,22 +57,41 @@ def publish(path):
     sh("git", "push", "-q", "-f", remote, f"HEAD:{BRANCH}", cwd=PUB)
 
 
-def redeploy_site():
-    """Ask GitHub to rebuild and redeploy the Pages site (same address the app opens),
-    so prices still arrive on networks that block raw.githubusercontent.com."""
+def dispatch(workflow):
+    """Start a workflow run via the API. GITHUB_TOKEN is allowed to trigger workflow_dispatch."""
     token, repo = os.environ.get("GH_TOKEN"), os.environ.get("GITHUB_REPOSITORY")
     if not token or not repo:
         return False
     req = urllib.request.Request(
-        f"https://api.github.com/repos/{repo}/actions/workflows/refresh.yml/dispatches",
+        f"https://api.github.com/repos/{repo}/actions/workflows/{workflow}/dispatches",
         data=json.dumps({"ref": "main"}).encode(), method="POST",
         headers={"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json"})
     try:
         with urllib.request.urlopen(req, timeout=20) as r:
             return r.status == 204
     except Exception as e:
-        print("  site redeploy request failed:", e)
+        print(f"  dispatch {workflow} failed:", e)
         return False
+
+
+def redeploy_site():
+    """Rebuild and redeploy the Pages site (the address the app opens), so prices also
+    arrive on networks that block raw.githubusercontent.com."""
+    return dispatch("refresh.yml")
+
+
+def wait_for_open(max_wait_h=4.5):
+    """Started early on a trading day (GitHub's scheduler is unreliable, so we start early):
+    wait for the session instead of exiting."""
+    now = dt.datetime.now(IST)
+    if now.weekday() >= 5 or now.time() >= OPEN:
+        return
+    opening = now.replace(hour=OPEN.hour, minute=OPEN.minute, second=0, microsecond=0)
+    wait = (opening - now).total_seconds()
+    if wait > max_wait_h * 3600:
+        return
+    print(f"{now:%H:%M} IST  waiting {wait/60:.0f} min for the market to open", flush=True)
+    time.sleep(wait)
 
 
 def pull_main():
@@ -88,7 +107,9 @@ def main():
     ap.add_argument("--every", type=int, default=3, help="minutes between refreshes")
     ap.add_argument("--site-every", type=int, default=6, help="minutes between full site redeploys")
     a = ap.parse_args()
-    start = time.time()
+    start = time.time()          # GitHub's 6-hour limit counts from job start, waiting included
+    if not a.once:
+        wait_for_open()
     n = 0
     last_site = 0.0
     while True:
@@ -110,7 +131,11 @@ def main():
                 print(f"{now:%H:%M:%S} IST  Yahoo unavailable, not publishing", flush=True)
         except Exception as e:  # keep looping; the next round usually recovers
             print(f"{now:%H:%M:%S} IST  error: {e!r}", file=sys.stderr, flush=True)
-        if a.once or not market_window(dt.datetime.now(IST)) or time.time() - start > MAX_RUNTIME:
+        if a.once or not market_window(dt.datetime.now(IST)):
+            break
+        if time.time() - start > MAX_RUNTIME:
+            # GitHub stops jobs at 6 hours: hand over to a fresh run (it queues and starts as we exit)
+            print("runtime limit reached, starting a fresh run:", dispatch("live.yml"), flush=True)
             break
         step = a.every * 60
         time.sleep(max(20, step - (time.time() % step)))   # align to the next N-minute mark

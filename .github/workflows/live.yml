@@ -6,8 +6,12 @@ name: Live prices (market hours)
 # waits in the queue, and exits at once if the session is over.
 on:
   schedule:
-    - cron: "35 3 * * 1-5"      # 09:05 IST
-    - cron: "5 4-9 * * 1-5"     # 09:35 … 14:35 IST safety nets
+    # GitHub often starts scheduled runs hours late (or skips them), so there are several
+    # attempts from 04:00 IST. A run that starts before the open waits for it; extra runs
+    # queue behind the active one and exit at once if there's nothing left to do.
+    - cron: "30 22 * * 0-4"     # 04:00 IST Mon–Fri
+    - cron: "0 0,1,2,3 * * 1-5" # 05:30, 06:30, 07:30, 08:30 IST
+    - cron: "5 4-9 * * 1-5"     # 09:35 … 14:35 IST
   push:
     branches: [main]
     paths: [".github/workflows/live.yml", "live_loop.py", "build_data.py"]
@@ -24,7 +28,7 @@ concurrency:
 jobs:
   live:
     runs-on: ubuntu-latest
-    timeout-minutes: 358
+    timeout-minutes: 359
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
